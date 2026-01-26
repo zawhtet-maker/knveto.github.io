@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign UP - KnVeTo SHOP</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<style>
+*{box-sizing:border-box; font-family:"Segoe UI",sans-serif;}
+body{margin:0; min-height:100vh; background:linear-gradient(135deg,#667eea,#764ba2);}
+
+/* HEADER */
+.header{
+  background:#fff;
+  padding:10px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.logo .red{color:#e53935;font-size:18px;font-weight:800;}
+.logo .blue{color:#1e88e5;font-size:11px;font-weight:600;}
+
+/* Back button and menu icon container */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: #f5f5f5;
+}
+
+.menu-icon{font-size:24px;cursor:pointer;}
+
+/* SCROLLING TEXT */
+.marquee-box{
+  background:#fff;
+  overflow:hidden;
+  white-space:nowrap;
+  border-bottom:1px solid #eee;
+  font-size:12px;
+}
+.marquee{
+  display:inline-block;
+  padding-left:100%;
+  animation:marquee 18s linear infinite;
+}
+.marquee span{display:inline-block;margin-right:40px;color:#111;font-weight:500;}
+@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+
+/* MENU DROPDOWN */
+.menu{
+  display:none;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  position: absolute;
+  top: 60px;
+  right: 14px;
+  z-index: 1000;
+  width: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.menu a{
+  display:block;
+  padding:12px;
+  text-decoration:none;
+  color:#333;
+  border-bottom:1px solid #eee;
+  transition: background 0.2s;
+}
+.menu a:hover{
+  background:#f5f5f5;
+}
+.menu a:last-child{
+  border-bottom:none;
+}
+
+/* SIGN UP FORM */
+.page{
+  min-height:calc(100vh - 120px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding: 15px;
+}
+.signup-box{
+  width:100%;
+  max-width:320px;
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 12px 28px rgba(0,0,0,.25);
+}
+.signup-box h2{
+  text-align:center;
+  margin-bottom:16px;
+  font-size:18px;
+  color:#333;
+}
+.input-group{
+  margin-bottom:10px;
+  position:relative;
+}
+.input-group label{
+  font-size:13px;
+  color:#555;
+  display:block;
+  margin-bottom:3px;
+}
+.input-group input{
+  width:100%;
+  padding:8px 10px;
+  font-size:14px;
+  border-radius:6px;
+  border:1px solid #ddd;
+}
+.input-group input:focus{border-color:#667eea;}
+
+/* Password toggle */
+.toggle-password{
+  position:absolute;
+  right:10px;
+  top:32px;
+  cursor:pointer;
+  font-size:12px;
+  color:#667eea;
+  user-select:none;
+}
+.toggle-password:hover{
+  text-decoration: underline;
+}
+
+/* Form button */
+.signup-btn{
+  width:100%;
+  padding:9px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition: transform 0.1s;
+  margin-top: 5px;
+}
+.signup-btn:active{transform:scale(0.98);}
+
+/* Login link */
+.login-link{text-align:center;margin-top:10px;font-size:12px;}
+.login-link a{color:#667eea;text-decoration:none;font-weight:600;}
+
+/* Footer */
+.footer{text-align:center;margin-top:8px;font-size:11px;color:#777;}
+
+/* ===== ERROR AND SUCCESS MESSAGES ===== */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 10px;
+  display: none;
+  border-left: 4px solid #ef5350;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 10px;
+  display: none;
+  border-left: 4px solid #4caf50;
+}
+
+.success-checkmark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  position: relative;
+  vertical-align: middle;
+}
+
+.success-checkmark:after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.loading {
+  display: none;
+  text-align: center;
+  margin: 8px 0;
+  color: #667eea;
+  font-size: 12px;
+}
+
+.loading:after {
+  content: ' .';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ' .'; }
+  40% { content: ' ..'; }
+  60% { content: ' ...'; }
+  80%, 100% { content: ''; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="red">KnVeTo-SHOP</div>
+    <div class="blue">Simple, Fastest & Trusted</div>
+  </div>
+  <div class="header-controls">
+    <button class="back-btn" onclick="navigateTo('login.html')">← Back</button>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+  </div>
+</div>
+
+<!-- SCROLLING TEXT -->
+<div class="marquee-box">
+  <div class="marquee">
+    <span>🔥 နင်ငါကို ငွေကြောင့်ထားခဲ့တာမလား? အေး! ခုဆိုငါအဲ့ငွေကြောင့်အလုပ်တွေကြိုးစားနေပီး။</span>
+    <span>👊ကလေးလေးမွေးရင် နင်မေကိုပြောပေးပါ၊အမေမြေးလေးမှာ အမေပြောတဲ့မျိူးမစစ်‌ကောင်ရဲ့သွေးပါတယ်လို့။</span>
+    <span>📩အန်တီခင်များသမီးကိုမတန်ဘူးလို့ပြောခဲ့တာ ခင်များသမက်ထက်သာအောင်ကြိုးစားပြမယ်။</span>
+  </div>
+</div>
+
+<!-- MENU DROPDOWN -->
+<div class="menu" id="menu">
+  <a href="#" onclick="navigateTo('external.html')">Admin Contact</a>
+  <a href="#" onclick="navigateTo('password.html')">Forgot Password</a>
+  <a href="#" onclick="navigateTo('login.html')">Login</a>
+</div>
+
+<!-- SIGN UP FORM -->
+<div class="page">
+  <div class="signup-box">
+    <h2>Sign UP</h2>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    <div class="loading" id="loading">Creating account</div>
+    
+    <form id="signupForm">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="Enter your full name" required>
+      </div>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="example@gmail.com" required>
+      </div>
+      <div class="input-group">
+        <label>Password (min. 6 characters)</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+        <span class="toggle-password" onclick="togglePassword('password')">Show</span>
+      </div>
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+        <span class="toggle-password" onclick="togglePassword('confirmPassword')">Show</span>
+      </div>
+      <button class="signup-btn" type="submit">Create Account</button>
+    </form>
+    
+    <div class="login-link">
+      Already have an account? <a href="#" onclick="navigateTo('login.html')">Login</a>
+    </div>
+    <div class="footer">© 2026 SocialFastMM</div>
+  </div>
+</div>
+
+<script>
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCcRzva_qeKlaUH7ORsvvb5F3wOEGTvjTY",
+  authDomain: "knveto-d2a5b.firebaseapp.com",
+  projectId: "knveto-d2a5b",
+  storageBucket: "knveto-d2a5b.firebasestorage.app",
+  messagingSenderId: "717672809912",
+  appId: "1:717672809912:web:06134f4f9e5349e714fb4d"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Navigation function
+function navigateTo(page) {
+  window.location.href = page;
+}
+
+// Toggle menu function
+function toggleMenu() {
+  const menu = document.getElementById("menu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById("menu");
+  const menuIcon = document.querySelector('.menu-icon');
+  const headerControls = document.querySelector('.header-controls');
+  
+  if (!menu.contains(event.target) && !headerControls.contains(event.target)) {
+    menu.style.display = "none";
+  }
+});
+
+// Password visibility toggle
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  const toggle = input.nextElementSibling;
+  if (input.type === "password") {
+    input.type = "text";
+    toggle.textContent = "Hide";
+  } else {
+    input.type = "password";
+    toggle.textContent = "Show";
+  }
+}
+
+// Handle form submission
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const fullName = document.getElementById('fullName').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
+  const loading = document.getElementById('loading');
+  
+  // Reset messages
+  errorMessage.style.display = 'none';
+  successMessage.style.display = 'none';
+  loading.style.display = 'block';
+  
+  // Validation
+  if (password.length < 6) {
+    loading.style.display = 'none';
+    errorMessage.textContent = 'Password must be at least 6 characters long.';
+    errorMessage.style.display = 'block';
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    loading.style.display = 'none';
+    errorMessage.textContent = 'Passwords do not match.';
+    errorMessage.style.display = 'block';
+    return;
+  }
+  
+  // Create user with Firebase Authentication
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      // User created successfully
+      const user = userCredential.user;
+      
+      // Update user profile with full name
+      return user.updateProfile({
+        displayName: fullName
+      }).then(() => {
+        // Show success message with checkmark
+        loading.style.display = 'none';
+        successMessage.innerHTML = '<span class="success-checkmark"></span> Account created successfully! Redirecting to dashboard...';
+        successMessage.style.display = 'block';
+        
+        // Redirect to dashboard after 3 seconds
+        setTimeout(() => {
+          navigateTo('index.html');
+        }, 3000);
+      });
+    })
+    .catch((error) => {
+      loading.style.display = 'none';
+      
+      // Handle errors
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage.textContent = 'This email is already registered. Please login instead.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage.textContent = 'Invalid email format.';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage.textContent = 'Email/password accounts are not enabled.';
+          break;
+        case 'auth/weak-password':
+          errorMessage.textContent = 'Password is too weak. Please choose a stronger password.';
+          break;
+        default:
+          errorMessage.textContent = 'Account creation failed. Please try again.';
+      }
+      
+      errorMessage.style.display = 'block';
+    });
+});
+
+// Check if user is already logged in
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    // User is already logged in, redirect to dashboard
+    console.log('User already logged in:', user.email);
+    // Don't auto-redirect on registration page to allow new registration
+  }
+});
+</script>
+
+</body>
+</html>

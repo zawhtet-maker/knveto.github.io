@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order History</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI",sans-serif;
+}
+
+body{
+  background:#f4f6fb;
+  min-height:100vh;
+}
+
+/* ===== HEADER ===== */
+.header{
+  height:60px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  position:relative;
+  z-index:1001;
+}
+
+.logo{
+  font-size:18px;
+  font-weight:700;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.profile-circle {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-btn{
+  background:rgba(255,255,255,0.2);
+  border:none;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+/* ===== MENU BAR ===== */
+.menu{
+  position:fixed;
+  top:60px;
+  right:-260px;
+  width:260px;
+  height:calc(100% - 60px);
+  background:#ffffff;
+  box-shadow:-5px 0 20px rgba(0,0,0,0.15);
+  transition:0.3s;
+  z-index:1000;
+  overflow-y:auto;
+}
+
+.menu.active{
+  right:0;
+}
+
+.menu-balance{
+  background:#f5f6ff;
+  padding:16px;
+  font-weight:600;
+  color:#333;
+  border-bottom:1px solid #eee;
+  display:flex;
+  align-items:center;
+}
+
+.menu-balance i{
+  color:#667eea;
+  margin-right:10px;
+}
+
+#balanceAmount {
+  color: #4CAF50;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  color:#333;
+  text-decoration:none;
+  font-size:14px;
+  border-bottom:1px solid #f1f1f1;
+  transition:0.2s;
+  cursor:pointer;
+}
+
+.menu a i{
+  width:18px;
+  color:#667eea;
+}
+
+.menu a:hover{
+  background:#f7f8ff;
+  padding-left:20px;
+}
+
+.menu a.active {
+  background: #f0f5ff;
+  color: #667eea;
+  font-weight: 600;
+  border-left: 3px solid #667eea;
+ }
+
+/* ===== PAGE CONTENT ===== */
+.content{
+  padding:16px;
+  min-height:calc(100vh - 60px);
+}
+
+/* ===== ORDER HISTORY PAGE STYLES ===== */
+.history-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.page-description {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+/* ===== SEARCH AND FILTER SECTION ===== */
+.search-filter-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.search-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-group {
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-group label {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.select-dropdown {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  transition: border 0.3s;
+}
+
+.select-dropdown:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+/* ===== ORDERS TABLE ===== */
+.orders-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-title {
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.total-orders {
+  color: #666;
+  font-size: 14px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.orders-table th {
+  text-align: left;
+  padding: 16px;
+  background: #f8f9fa;
+  color: #555;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.orders-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #444;
+}
+
+/* ===== STATUS BADGES ===== */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 90px;
+  text-align: center;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ff9800;
+}
+
+.status-processing {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+}
+
+.status-complete {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.status-cancel {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.status-coinadd {
+  background: rgba(156, 39, 176, 0.15);
+  color: #9c27b0;
+}
+
+/* ===== LOADING STATE ===== */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.loading-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #667eea;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+/* ===== ERROR STATE ===== */
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  display: none;
+}
+
+.error-state i {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: #f44336;
+}
+
+.error-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #f44336;
+}
+
+.error-state p {
+  font-size: 14px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  display: none;
+}
+
+.empty-state i {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: #ddd;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.empty-state p {
+  font-size: 14px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 6px;
+}
+
+.page-number {
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.page-number:hover {
+  background: #e0e0e0;
+}
+
+.page-number.active {
+  background: #667eea;
+  color: white;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .search-row {
+    flex-direction: column;
+  }
+  
+  .search-group {
+    min-width: 100%;
+  }
+  
+  .orders-table {
+    font-size: 13px;
+  }
+  
+  .orders-table th,
+  .orders-table td {
+    padding: 12px 8px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="logo">Order History</div>
+  
+  <div class="user-profile" onclick="toggleMenu()">
+    <div class="profile-circle" id="profileInitial">?</div>
+    <div class="user-name" id="userName">Loading...</div>
+  </div>
+  
+  <button class="menu-btn" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i> Menu
+  </button>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="menu" id="menu">
+  <div class="menu-balance">
+    <i class="fas fa-wallet"></i>
+    Balance: <span id="balanceAmount">$0.00</span>
+  </div>
+
+  <a id="dashboardLink">
+    <i class="fas fa-home"></i>
+    Dashboard
+  </a>
+
+  <a id="boostServiceLink">
+    <i class="fas fa-rocket"></i>
+    Boost Service
+  </a>
+
+  <a id="otherServiceLink">
+    <i class="fas fa-cogs"></i>
+    Other Service
+  </a>
+
+  <a id="addFundsLink">
+    <i class="fas fa-plus-circle"></i>
+    Add Funds
+  </a>
+
+  <a class="active">
+    <i class="fas fa-history"></i>
+    Order History
+  </a>
+
+  <a id="botPanelLink">
+    <i class="fas fa-robot"></i>
+    Panel
+  </a>
+
+  <a id="logoutLink">
+    <i class="fas fa-sign-out-alt"></i>
+    Logout
+  </a>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="content">
+  <div class="history-container">
+    <h1 class="page-title">Order History</h1>
+    <p class="page-description">View and manage all your orders in one place</p>
+    
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+      <h3 class="section-title">Search Orders</h3>
+      <div class="search-row">
+        <div class="search-group">
+          <label for="orderIdSearch">Order ID</label>
+          <input type="text" id="orderIdSearch" class="search-input" placeholder="Enter Order ID to search...">
+        </div>
+        
+        <div class="search-group">
+          <label for="statusFilter">Status Filter</label>
+          <select id="statusFilter" class="select-dropdown">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="complete">Complete</option>
+            <option value="cancel">Cancel</option>
+            <option value="coinadd">Coinadd</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="searchBtn">
+          <i class="fas fa-search"></i> Search Orders
+        </button>
+        <button class="btn btn-secondary" id="resetBtn">
+          <i class="fas fa-redo"></i> Reset Filters
+        </button>
+      </div>
+    </div>
+    
+    <!-- Orders Table Section -->
+    <div class="orders-section">
+      <div class="table-header">
+        <h3 class="table-title">Your Orders</h3>
+        <div class="total-orders">
+          Total: <span id="totalOrders">0</span> orders
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div class="loading-state" id="loadingState">
+        <i class="fas fa-spinner"></i>
+        <h3>Loading orders...</h3>
+        <p>Please wait while we fetch your order history</p>
+      </div>
+      
+      <!-- Error State -->
+      <div class="error-state" id="errorState">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3 id="errorTitle">Error Loading Orders</h3>
+        <p id="errorMessage">Unknown error occurred</p>
+        <button class="btn btn-primary" id="retryBtn" style="margin-top: 15px;">
+          <i class="fas fa-redo"></i> Retry
+        </button>
+      </div>
+      
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <i class="fas fa-history"></i>
+        <h3>No orders found</h3>
+        <p>Your order history will appear here once you place an order.</p>
+      </div>
+      
+      <!-- Orders Table Container -->
+      <div id="ordersTableContainer"></div>
+      
+      <!-- Pagination -->
+      <div class="pagination" id="pagination" style="display: none;">
+        <button class="pagination-btn" id="prevPage">
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <div class="page-numbers" id="pageNumbers"></div>
+        <button class="pagination-btn" id="nextPage">
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCcRzva_qeKlaUH7ORsvvb5F3wOEGTvjTY",
+  authDomain: "knveto-d2a5b.firebaseapp.com",
+  projectId: "knveto-d2a5b",
+  storageBucket: "knveto-d2a5b.firebasestorage.app",
+  messagingSenderId: "717672809912",
+  appId: "1:717672809912:web:06134f4f9e5349e714fb4d"
+};
+
+// Initialize Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log("Firebase initialized successfully");
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+  alert("Firebase initialization failed. Please check console.");
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// DOM Elements
+const menu = document.getElementById('menu');
+const profileInitial = document.getElementById('profileInitial');
+const userName = document.getElementById('userName');
+const balanceAmount = document.getElementById('balanceAmount');
+
+// Menu links
+const dashboardLink = document.getElementById('dashboardLink');
+const boostServiceLink = document.getElementById('boostServiceLink');
+const otherServiceLink = document.getElementById('otherServiceLink');
+const addFundsLink = document.getElementById('addFundsLink');
+const botPanelLink = document.getElementById('botPanelLink');
+const logoutLink = document.getElementById('logoutLink');
+
+// History page elements
+const orderIdSearch = document.getElementById('orderIdSearch');
+const statusFilter = document.getElementById('statusFilter');
+const searchBtn = document.getElementById('searchBtn');
+const resetBtn = document.getElementById('resetBtn');
+const ordersTableContainer = document.getElementById('ordersTableContainer');
+const loadingState = document.getElementById('loadingState');
+const errorState = document.getElementById('errorState');
+const emptyState = document.getElementById('emptyState');
+const errorTitle = document.getElementById('errorTitle');
+const errorMessage = document.getElementById('errorMessage');
+const retryBtn = document.getElementById('retryBtn');
+const totalOrders = document.getElementById('totalOrders');
+const pagination = document.getElementById('pagination');
+const prevPage = document.getElementById('prevPage');
+const nextPage = document.getElementById('nextPage');
+const pageNumbers = document.getElementById('pageNumbers');
+
+// Order data and pagination
+let currentUser = null;
+let userBalance = 0.00;
+let allOrders = [];
+let filteredOrders = [];
+let currentPage = 1;
+const ordersPerPage = 10;
+
+// Toggle menu function
+function toggleMenu() {
+  menu.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const isClickInsideMenu = menu.contains(event.target);
+  const isClickOnMenuButton = event.target.closest('.menu-btn') || event.target.closest('.user-profile');
+  
+  if (!isClickInsideMenu && !isClickOnMenuButton && menu.classList.contains('active')) {
+    menu.classList.remove('active');
+  }
+});
+
+// Extract first letter of name (or email if name not available)
+function getProfileInitial(displayName, email) {
+  if (displayName && displayName.trim().length > 0) {
+    return displayName.trim().charAt(0).toUpperCase();
+  } else if (email && email.trim().length > 0) {
+    return email.trim().charAt(0).toUpperCase();
+  }
+  return "?";
+}
+
+// Update balance display
+function updateBalanceDisplay() {
+  balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+}
+
+// Load user balance from Firestore
+function loadUserBalance(userId) {
+  if (!db) {
+    console.error("Firestore not available");
+    return;
+  }
+  
+  db.collection('users').doc(userId).get()
+    .then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        userBalance = data.balance || data.dollars || 0;
+        console.log("User balance loaded:", userBalance);
+      } else {
+        // Create user document if doesn't exist
+        db.collection('users').doc(userId).set({
+          balance: 0,
+          email: currentUser.email,
+          displayName: currentUser.displayName || "User",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          console.log("New user document created");
+          userBalance = 0;
+        });
+      }
+      updateBalanceDisplay();
+    })
+    .catch((error) => {
+      console.error("Error loading user balance:", error);
+      userBalance = 0;
+      updateBalanceDisplay();
+    });
+}
+
+// Update user profile in header
+function updateUserProfile(user) {
+  const displayName = user.displayName || "User";
+  const email = user.email || "No email";
+  
+  // Get first letter for profile circle
+  const initial = getProfileInitial(displayName, email);
+  profileInitial.textContent = initial;
+  
+  // Update user name (show only first name if available)
+  const firstName = displayName.split(' ')[0];
+  userName.textContent = firstName;
+  
+  currentUser = user;
+  
+  // Load user balance
+  loadUserBalance(user.uid);
+}
+
+// Setup navigation links
+function setupNavigation() {
+  // Dashboard
+  dashboardLink.addEventListener('click', function() {
+    window.location.href = 'index.html';
+  });
+  
+  // Boost Service
+  boostServiceLink.addEventListener('click', function() {
+    window.location.href = 'smmpanel.html';
+  });
+  
+  // Other Service
+  otherServiceLink.addEventListener('click', function() {
+    window.location.href = 'service.html';
+  });
+  
+  // Add Funds
+  addFundsLink.addEventListener('click', function() {
+    window.location.href = 'coins.html';
+  });
+  
+  // Bot Panel
+  botPanelLink.addEventListener('click', function() {
+    window.location.href = 'panel.html';
+  });
+  
+  // Logout
+  logoutLink.addEventListener('click', function() {
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    }).catch((error) => {
+      console.error('Logout error:', error);
+      alert('Logout failed. Please try again.');
+    });
+  });
+}
+</script>
+</body>
+</html>
+<!-- CONTINUATION OF THE SCRIPT SECTION FROM PART 1 -->
+
+<script>
+// Show error state
+function showError(title, message) {
+  console.error("Error:", title, message);
+  errorTitle.textContent = title;
+  errorMessage.textContent = message;
+  loadingState.style.display = 'none';
+  emptyState.style.display = 'none';
+  errorState.style.display = 'block';
+  ordersTableContainer.innerHTML = '';
+  pagination.style.display = 'none';
+}
+
+// Show loading state
+function showLoading() {
+  loadingState.style.display = 'block';
+  emptyState.style.display = 'none';
+  errorState.style.display = 'none';
+  ordersTableContainer.innerHTML = '';
+  pagination.style.display = 'none';
+}
+
+// Show empty state
+function showEmpty() {
+  loadingState.style.display = 'none';
+  emptyState.style.display = 'block';
+  errorState.style.display = 'none';
+  ordersTableContainer.innerHTML = '';
+  pagination.style.display = 'none';
+}
+
+// Load orders WITHOUT orderBy to avoid index error
+async function loadUserOrders(userId) {
+  if (!db) {
+    showError("Database Error", "Firestore not available");
+    return;
+  }
+  
+  showLoading();
+  console.log("Loading orders for user:", userId);
+  
+  try {
+    allOrders = [];
+    
+    // Try to load from 'orders' collection WITHOUT orderBy first
+    try {
+      console.log("Querying 'orders' collection...");
+      
+      // First try simple query without orderBy
+      let ordersSnapshot;
+      try {
+        ordersSnapshot = await db.collection('orders')
+          .where('userId', '==', userId)
+          .orderBy('createdAt', 'desc')
+          .get();
+      } catch (orderByError) {
+        console.log("orderBy error, trying without orderBy:", orderByError.message);
+        // If orderBy fails, try without it
+        ordersSnapshot = await db.collection('orders')
+          .where('userId', '==', userId)
+          .get();
+      }
+      
+      console.log(`'orders' collection loaded: ${ordersSnapshot.size} documents`);
+      
+      ordersSnapshot.forEach((doc) => {
+        const order = doc.data();
+        order.id = doc.id;
+        order.collection = 'orders';
+        allOrders.push(order);
+        console.log(`Found order: ${doc.id}, Status: ${order.status || 'N/A'}`);
+      });
+    } catch (ordersError) {
+      console.error(`ERROR loading 'orders' collection: ${ordersError.message}`);
+      // Continue with other collections
+    }
+    
+    // Try to load from 'coinorders' collection WITHOUT orderBy
+    try {
+      console.log("Querying 'coinorders' collection...");
+      
+      let coinOrdersSnapshot;
+      try {
+        coinOrdersSnapshot = await db.collection('coinorders')
+          .where('userId', '==', userId)
+          .orderBy('createdAt', 'desc')
+          .get();
+      } catch (orderByError) {
+        console.log("orderBy error for coinorders, trying without orderBy");
+        coinOrdersSnapshot = await db.collection('coinorders')
+          .where('userId', '==', userId)
+          .get();
+      }
+      
+      console.log(`'coinorders' collection loaded: ${coinOrdersSnapshot.size} documents`);
+      
+      coinOrdersSnapshot.forEach((doc) => {
+        const order = doc.data();
+        order.id = doc.id;
+        order.collection = 'coinorders';
+        
+        // If coinorders doesn't have status, set it to 'coinadd'
+        if (!order.status) {
+          order.status = 'coinadd';
+        }
+        
+        allOrders.push(order);
+        console.log(`Found coinorder: ${doc.id}, Status: ${order.status || 'N/A'}`);
+      });
+    } catch (coinOrdersError) {
+      console.error(`ERROR loading 'coinorders' collection: ${coinOrdersError.message}`);
+    }
+    
+    // Manually sort all orders by date (newest first)
+    allOrders.sort((a, b) => {
+      const dateA = getDateFromOrder(a);
+      const dateB = getDateFromOrder(b);
+      return dateB - dateA; // Descending order
+    });
+    
+    console.log(`=== TOTAL ORDERS LOADED: ${allOrders.length} ===`);
+    
+    totalOrders.textContent = allOrders.length;
+    
+    if (allOrders.length === 0) {
+      console.log("No orders found for user");
+      showEmpty();
+    } else {
+      loadingState.style.display = 'none';
+      console.log(`Rendering ${allOrders.length} orders...`);
+      applyFilters();
+    }
+    
+  } catch (error) {
+    console.error(`ERROR in loadUserOrders: ${error.message}`);
+    console.error(`Error code: ${error.code}`);
+    
+    // Check for specific permission error
+    if (error.code === 'permission-denied') {
+      showError(
+        "Permission Denied", 
+        `Firebase Security Rules Error: ${error.message}\n\nPlease check your Firestore security rules.`
+      );
+    } else if (error.code === 'failed-precondition') {
+      showError(
+        "Index Required", 
+        `Firestore Index Error: ${error.message}\n\nClick the link in the error to create the required index.`
+      );
+    } else {
+      showError("Error Loading Orders", `${error.message} (Code: ${error.code})`);
+    }
+  }
+}
+
+// Helper function to get date from order
+function getDateFromOrder(order) {
+  if (!order.createdAt) return new Date(0);
+  
+  try {
+    if (order.createdAt.toDate) {
+      return order.createdAt.toDate();
+    } else if (order.createdAt.seconds) {
+      return new Date(order.createdAt.seconds * 1000);
+    } else if (order.createdAt._seconds) {
+      return new Date(order.createdAt._seconds * 1000);
+    } else {
+      return new Date(order.createdAt);
+    }
+  } catch (error) {
+    return new Date(0);
+  }
+}
+
+// Generate status badge HTML
+function getStatusBadge(status) {
+  let badgeClass = '';
+  let badgeText = '';
+  
+  if (!status) {
+    badgeClass = 'status-pending';
+    badgeText = 'Pending';
+  } else {
+    switch(status.toLowerCase()) {
+      case 'pending':
+        badgeClass = 'status-pending';
+        badgeText = 'Pending';
+        break;
+      case 'processing':
+      case 'in progress':
+      case 'progress':
+        badgeClass = 'status-processing';
+        badgeText = 'Processing';
+        break;
+      case 'complete':
+      case 'completed':
+      case 'delivered':
+        badgeClass = 'status-complete';
+        badgeText = 'Complete';
+        break;
+      case 'cancel':
+      case 'cancelled':
+      case 'canceled':
+        badgeClass = 'status-cancel';
+        badgeText = 'Cancel';
+        break;
+      case 'coinadd':
+        badgeClass = 'status-coinadd';
+        badgeText = 'Coinadd';
+        break;
+      default:
+        badgeClass = 'status-pending';
+        badgeText = status;
+    }
+  }
+  
+  return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+}
+
+// Format date from Firestore timestamp
+function formatDate(timestamp) {
+  if (!timestamp) return 'N/A';
+  
+  try {
+    let date;
+    
+    // Check if timestamp is a Firestore timestamp
+    if (timestamp.toDate) {
+      date = timestamp.toDate();
+    } else if (timestamp.seconds) {
+      date = new Date(timestamp.seconds * 1000);
+    } else if (timestamp._seconds) {
+      date = new Date(timestamp._seconds * 1000);
+    } else {
+      date = new Date(timestamp);
+    }
+    
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return 'N/A';
+  }
+}
+
+// Truncate text for display
+function truncateText(text, maxLength = 30) {
+  if (!text || text === 'N/A') return 'N/A';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
+// Render orders table
+function renderOrdersTable(orders) {
+  if (orders.length === 0) {
+    showEmpty();
+    return;
+  }
+  
+  console.log(`Rendering table with ${orders.length} orders (page ${currentPage})`);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const startIndex = (currentPage - 1) * ordersPerPage;
+  const endIndex = Math.min(startIndex + ordersPerPage, orders.length);
+  const pageOrders = orders.slice(startIndex, endIndex);
+  
+  // Create table
+  const table = document.createElement('table');
+  table.className = 'orders-table';
+  
+  // Create table header
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th>Order ID</th>
+      <th>Type</th>
+      <th>Amount</th>
+      <th>Link</th>
+      <th>Time</th>
+      <th>Status</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+  
+  // Create table body
+  const tbody = document.createElement('tbody');
+  
+  pageOrders.forEach(order => {
+    const row = document.createElement('tr');
+    
+    // Format order data
+    let orderId = order.orderId || order.id.substring(0, 8).toUpperCase();
+    
+    // For coinorders, check for coinOrderId field
+    if (order.collection === 'coinorders' && order.coinOrderId) {
+      orderId = order.coinOrderId;
+    }
+    
+    let orderType = order.serviceType || order.type || order.serviceName || 'Unknown Service';
+    
+    // For coinorders, set type to "Coin Purchase"
+    if (order.collection === 'coinorders') {
+      orderType = "Coin Purchase";
+    }
+    
+    const amount = order.amount ? `$${parseFloat(order.amount).toFixed(2)}` : '$0.00';
+    const link = order.link || order.url || order.target || (order.collection === 'coinorders' ? 'N/A' : 'N/A');
+    const time = order.createdAt ? formatDate(order.createdAt) : 'N/A';
+    const status = order.status || 'pending';
+    
+    row.innerHTML = `
+      <td><strong>${orderId}</strong></td>
+      <td>${orderType}</td>
+      <td>${amount}</td>
+      <td title="${link}">${truncateText(link)}</td>
+      <td>${time}</td>
+      <td>${getStatusBadge(status)}</td>
+    `;
+    
+    tbody.appendChild(row);
+  });
+  
+  table.appendChild(tbody);
+  
+  // Clear container and add table
+  ordersTableContainer.innerHTML = '';
+  ordersTableContainer.appendChild(table);
+  loadingState.style.display = 'none';
+  emptyState.style.display = 'none';
+  errorState.style.display = 'none';
+  
+  // Update pagination
+  renderPagination(orders.length, totalPages);
+  
+  console.log(`Table rendered successfully with ${pageOrders.length} orders on page ${currentPage}/${totalPages}`);
+}
+</script>
+<!-- CONTINUATION OF THE SCRIPT SECTION FROM PART 2 -->
+
+<script>
+// Render pagination controls
+function renderPagination(totalOrdersCount, totalPages) {
+  if (totalPages <= 1) {
+    pagination.style.display = 'none';
+    return;
+  }
+  
+  pagination.style.display = 'flex';
+  
+  // Previous button
+  prevPage.disabled = currentPage === 1;
+  
+  // Next button
+  nextPage.disabled = currentPage === totalPages;
+  
+  // Page numbers
+  pageNumbers.innerHTML = '';
+  
+  // Show max 5 page numbers
+  let startPage = Math.max(1, currentPage - 2);
+  let endPage = Math.min(totalPages, startPage + 4);
+  
+  // Adjust start page if we're near the end
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    const pageBtn = document.createElement('span');
+    pageBtn.className = `page-number ${i === currentPage ? 'active' : ''}`;
+    pageBtn.textContent = i;
+    pageBtn.addEventListener('click', () => {
+      currentPage = i;
+      renderOrdersTable(filteredOrders);
+    });
+    
+    pageNumbers.appendChild(pageBtn);
+  }
+  
+  // Add ellipsis if needed
+  if (endPage < totalPages) {
+    const ellipsis = document.createElement('span');
+    ellipsis.className = 'page-number';
+    ellipsis.textContent = '...';
+    ellipsis.style.cursor = 'default';
+    pageNumbers.appendChild(ellipsis);
+    
+    const lastPageBtn = document.createElement('span');
+    lastPageBtn.className = 'page-number';
+    lastPageBtn.textContent = totalPages;
+    lastPageBtn.addEventListener('click', () => {
+      currentPage = totalPages;
+      renderOrdersTable(filteredOrders);
+    });
+    pageNumbers.appendChild(lastPageBtn);
+  }
+}
+
+// Apply filters to orders - FIXED coinadd filter
+function applyFilters() {
+  const searchTerm = orderIdSearch.value.trim().toLowerCase();
+  const statusValue = statusFilter.value;
+  
+  console.log(`Applying filters - Search: "${searchTerm}", Status: "${statusValue}"`);
+  console.log(`Total orders before filter: ${allOrders.length}`);
+  
+  filteredOrders = allOrders.filter(order => {
+    try {
+      // Filter by order ID
+      let orderId = '';
+      if (order.orderId) {
+        orderId = String(order.orderId).toLowerCase();
+      } else if (order.id) {
+        orderId = String(order.id).toLowerCase();
+      }
+      
+      // Check for coinOrderId in coinorders collection
+      if (order.collection === 'coinorders' && order.coinOrderId) {
+        orderId = String(order.coinOrderId).toLowerCase();
+      }
+      
+      const matchesSearch = searchTerm === '' || 
+                           orderId.includes(searchTerm) ||
+                           (order.id && String(order.id).toLowerCase().includes(searchTerm));
+      
+      // Filter by status - FIXED coinadd logic
+      const orderStatus = (order.status || 'pending').toLowerCase();
+      let matchesStatus = false;
+      
+      if (statusValue === 'all') {
+        matchesStatus = true;
+      } else if (statusValue === 'pending') {
+        matchesStatus = orderStatus === 'pending';
+      } else if (statusValue === 'processing') {
+        matchesStatus = orderStatus === 'processing' || orderStatus === 'in progress' || orderStatus === 'progress';
+      } else if (statusValue === 'complete') {
+        matchesStatus = orderStatus === 'complete' || orderStatus === 'completed' || orderStatus === 'delivered';
+      } else if (statusValue === 'cancel') {
+        matchesStatus = orderStatus === 'cancel' || orderStatus === 'cancelled' || orderStatus === 'canceled';
+      } else if (statusValue === 'coinadd') {
+        // FIXED: Check multiple conditions for coinadd
+        matchesStatus = 
+          orderStatus === 'coinadd' || 
+          orderStatus === 'coin addition' ||
+          orderStatus === 'funds added' ||
+          order.collection === 'coinorders' ||
+          order.serviceType === 'Coin Purchase' ||
+          order.type === 'Coin Purchase' ||
+          (order.amount && order.amount > 0 && !order.link); // Coin orders usually don't have link
+      }
+      
+      // Debug log for coinadd
+      if (statusValue === 'coinadd') {
+        console.log(`Checking order ${order.id}: status=${orderStatus}, collection=${order.collection}, matches=${matchesStatus}`);
+      }
+      
+      return matchesSearch && matchesStatus;
+    } catch (error) {
+      console.error("Error filtering order:", error, order);
+      return false;
+    }
+  });
+  
+  // Reset to first page when filtering
+  currentPage = 1;
+  
+  // Update total count
+  totalOrders.textContent = filteredOrders.length;
+  
+  console.log(`Filtered to ${filteredOrders.length} orders (Status: ${statusValue})`);
+  console.log(`Coinadd filter matches: ${filteredOrders.filter(o => statusValue === 'coinadd').length} orders`);
+  
+  // Render filtered orders
+  renderOrdersTable(filteredOrders);
+}
+
+// Render orders table
+function renderOrdersTable(orders) {
+  if (orders.length === 0) {
+    showEmpty();
+    return;
+  }
+  
+  console.log(`Rendering table with ${orders.length} orders (page ${currentPage})`);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const startIndex = (currentPage - 1) * ordersPerPage;
+  const endIndex = Math.min(startIndex + ordersPerPage, orders.length);
+  const pageOrders = orders.slice(startIndex, endIndex);
+  
+  // Create table
+  const table = document.createElement('table');
+  table.className = 'orders-table';
+  
+  // Create table header
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th>Order ID</th>
+      <th>Type</th>
+      <th>Quantity</th>
+      <th>Link</th>
+      <th>Time</th>
+      <th>Status</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+  
+  // Create table body
+  const tbody = document.createElement('tbody');
+  
+  pageOrders.forEach(order => {
+    try {
+      const row = document.createElement('tr');
+      
+      // Format order data
+      let orderId = '';
+      if (order.orderId) {
+        orderId = String(order.orderId);
+      } else if (order.id) {
+        // Use first 8 characters of document ID
+        orderId = String(order.id).substring(0, 8).toUpperCase();
+      }
+      
+      // For coinorders, check for coinOrderId field
+      if (order.collection === 'coinorders' && order.coinOrderId) {
+        orderId = String(order.coinOrderId);
+      }
+      
+      let orderType = order.serviceType || order.type || order.serviceName || 'Unknown Service';
+      
+      // For coinorders, set type to "Coin Purchase"
+      if (order.collection === 'coinorders') {
+        orderType = "Coin Purchase";
+      }
+      
+      // Show Quantity (User's order amount)
+      let quantity = 'N/A';
+      if (order.quantity !== undefined && order.quantity !== null) {
+        quantity = String(order.quantity);
+      } else if (order.amount !== undefined && order.amount !== null) {
+        quantity = String(order.amount);
+      } else if (order.qty !== undefined && order.qty !== null) {
+        quantity = String(order.qty);
+      }
+      
+      // For coinorders, show coin amount
+      if (order.collection === 'coinorders' && order.coinAmount) {
+        quantity = String(order.coinAmount) + " coins";
+      }
+      
+      const link = order.link || order.url || order.target || 'N/A';
+      const time = order.createdAt ? formatDate(order.createdAt) : 'N/A';
+      
+      // FIXED: Auto-detect coinadd status for coinorders
+      let status = order.status || 'pending';
+      if (order.collection === 'coinorders' && !status.includes('coin')) {
+        status = 'coinadd';
+      }
+      
+      row.innerHTML = `
+        <td><strong>${orderId}</strong></td>
+        <td>${orderType}</td>
+        <td>${quantity}</td>
+        <td title="${link}">${truncateText(link)}</td>
+        <td>${time}</td>
+        <td>${getStatusBadge(status)}</td>
+      `;
+      
+      tbody.appendChild(row);
+    } catch (error) {
+      console.error("Error rendering order row:", error, order);
+    }
+  });
+  
+  table.appendChild(tbody);
+  
+  // Clear container and add table
+  ordersTableContainer.innerHTML = '';
+  ordersTableContainer.appendChild(table);
+  loadingState.style.display = 'none';
+  emptyState.style.display = 'none';
+  errorState.style.display = 'none';
+  
+  // Update pagination
+  renderPagination(orders.length, totalPages);
+}
+
+// Load user orders - FIXED to include coinorders properly
+async function loadUserOrders(userId) {
+  if (!db) {
+    showError("Database Error", "Firestore not available");
+    return;
+  }
+  
+  showLoading();
+  console.log("=== LOADING ORDERS FOR USER:", userId, "===");
+  
+  try {
+    allOrders = [];
+    
+    // 1. Load from 'orders' collection
+    try {
+      console.log("1. Querying 'orders' collection...");
+      const ordersSnapshot = await db.collection('orders')
+        .where('userId', '==', userId)
+        .get();
+      
+      console.log(`   Found ${ordersSnapshot.size} orders`);
+      
+      ordersSnapshot.forEach((doc) => {
+        const order = doc.data();
+        order.id = doc.id;
+        order.collection = 'orders';
+        order.status = order.status || 'pending';
+        allOrders.push(order);
+        console.log(`   - Order: ${doc.id}, Status: ${order.status}, Type: ${order.serviceType || order.type}`);
+      });
+    } catch (ordersError) {
+      console.error("   ERROR loading orders:", ordersError.message);
+    }
+    
+    // 2. Load from 'coinorders' collection  
+    try {
+      console.log("2. Querying 'coinorders' collection...");
+      const coinOrdersSnapshot = await db.collection('coinorders')
+        .where('userId', '==', userId)
+        .get();
+      
+      console.log(`   Found ${coinOrdersSnapshot.size} coinorders`);
+      
+      coinOrdersSnapshot.forEach((doc) => {
+        const order = doc.data();
+        order.id = doc.id;
+        order.collection = 'coinorders';
+        order.status = 'coinadd'; // Force status to coinadd
+        order.serviceType = 'Coin Purchase'; // Set type
+        allOrders.push(order);
+        console.log(`   - Coinorder: ${doc.id}, Amount: ${order.amount || order.coinAmount || 'N/A'}`);
+      });
+    } catch (coinOrdersError) {
+      console.error("   ERROR loading coinorders:", coinOrdersError.message);
+    }
+    
+    // 3. Also check 'coinOrders' (with capital O) just in case
+    try {
+      console.log("3. Querying 'coinOrders' collection (capital O)...");
+      const coinOrdersCapital = await db.collection('coinOrders')
+        .where('userId', '==', userId)
+        .get();
+      
+      console.log(`   Found ${coinOrdersCapital.size} coinOrders (capital)`);
+      
+      coinOrdersCapital.forEach((doc) => {
+        const order = doc.data();
+        order.id = doc.id;
+        order.collection = 'coinorders';
+        order.status = 'coinadd';
+        order.serviceType = 'Coin Purchase';
+        allOrders.push(order);
+        console.log(`   - CoinOrder (capital): ${doc.id}`);
+      });
+    } catch (error) {
+      console.log("   No 'coinOrders' collection found (expected)");
+    }
+    
+    console.log(`=== TOTAL ORDERS LOADED: ${allOrders.length} ===`);
+    
+    // Debug: Show all loaded orders
+    allOrders.forEach((order, index) => {
+      console.log(`${index + 1}. ${order.collection} - ${order.id} - Status: ${order.status} - Type: ${order.serviceType || order.type}`);
+    });
+    
+    totalOrders.textContent = allOrders.length;
+    
+    if (allOrders.length === 0) {
+      console.log("No orders found for user");
+      showEmpty();
+    } else {
+      loadingState.style.display = 'none';
+      console.log(`Rendering ${allOrders.length} orders...`);
+      applyFilters();
+    }
+    
+  } catch (error) {
+    console.error(`ERROR in loadUserOrders: ${error.message}`);
+    showError("Error Loading Orders", error.message);
+  }
+}
+
+// Setup event listeners
+function setupHistoryPageListeners() {
+  // Search button
+  searchBtn.addEventListener('click', applyFilters);
+  
+  // Search on Enter key
+  orderIdSearch.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+      applyFilters();
+    }
+  });
+  
+  // Status filter change
+  statusFilter.addEventListener('change', applyFilters);
+  
+  // Reset filters button
+  resetBtn.addEventListener('click', () => {
+    orderIdSearch.value = '';
+    statusFilter.value = 'all';
+    applyFilters();
+  });
+  
+  // Retry button
+  retryBtn.addEventListener('click', () => {
+    if (currentUser) {
+      console.log("Retrying order loading...");
+      loadUserOrders(currentUser.uid);
+    }
+  });
+  
+  // Pagination buttons
+  prevPage.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderOrdersTable(filteredOrders);
+    }
+  });
+  
+  nextPage.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderOrdersTable(filteredOrders);
+    }
+  });
+}
+
+// Check auth state
+function checkAuthState() {
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      console.log("User authenticated successfully");
+      updateUserProfile(user);
+      setupNavigation();
+      setupHistoryPageListeners();
+      
+      // Load user orders
+      loadUserOrders(user.uid);
+      
+    } else {
+      console.log("No user signed in, redirecting to login...");
+      window.location.href = 'index.html';
+    }
+  });
+}
+
+// Initialize the app
+function initApp() {
+  try {
+    console.log("Initializing Order History page...");
+    checkAuthState();
+  } catch (error) {
+    console.error(`Initialization error: ${error.message}`);
+    profileInitial.textContent = "G";
+    userName.textContent = "Guest";
+    updateBalanceDisplay();
+    showError("Initialization Error", error.message);
+  }
+}
+
+// Start the app when page loads
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

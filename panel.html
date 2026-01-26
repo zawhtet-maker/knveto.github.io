@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pannel</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI",sans-serif;
+}
+
+body{
+  background:#f4f6fb;
+  min-height:100vh;
+}
+
+/* ===== HEADER ===== */
+.header{
+  height:60px;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  position:relative;
+  z-index:1001;
+}
+
+.logo{
+  font-size:18px;
+  font-weight:700;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.profile-circle {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-btn{
+  background:rgba(255,255,255,0.2);
+  border:none;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+/* ===== MENU BAR ===== */
+.menu{
+  position:fixed;
+  top:60px;
+  right:-260px;
+  width:260px;
+  height:calc(100% - 60px);
+  background:#ffffff;
+  box-shadow:-5px 0 20px rgba(0,0,0,0.15);
+  transition:0.3s;
+  z-index:1000;
+  overflow-y:auto;
+}
+
+.menu.active{
+  right:0;
+}
+
+.menu-balance{
+  background:#f5f6ff;
+  padding:16px;
+  font-weight:600;
+  color:#333;
+  border-bottom:1px solid #eee;
+  display:flex;
+  align-items:center;
+}
+
+.menu-balance i{
+  color:#667eea;
+  margin-right:10px;
+}
+
+#balanceAmount {
+  color: #4CAF50;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  color:#333;
+  text-decoration:none;
+  font-size:14px;
+  border-bottom:1px solid #f1f1f1;
+  transition:0.2s;
+  cursor:pointer;
+}
+
+.menu a i{
+  width:18px;
+  color:#667eea;
+}
+
+.menu a:hover{
+  background:#f7f8ff;
+  padding-left:20px;
+}
+.menu a.active {
+  background: #f0f5ff;
+  color: #667eea;
+  font-weight: 600;
+  border-left: 3px solid #667eea;
+ }
+
+
+/* ===== PAGE CONTENT ===== */
+.content{
+  padding:16px;
+  min-height:calc(100vh - 60px);
+}
+
+/* ===== LOCKED CONTENT MESSAGE ===== */
+.locked-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  padding: 20px;
+}
+
+.lock-icon {
+  font-size: 80px;
+  color: #667eea;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.locked-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.locked-message {
+  font-size: 16px;
+  color: #666;
+  max-width: 500px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.locked-note {
+  font-size: 14px;
+  color: #888;
+  font-style: italic;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="logo">Panel Service</div>
+  
+  <div class="user-profile" onclick="toggleMenu()">
+    <div class="profile-circle" id="profileInitial">?</div>
+    <div class="user-name" id="userName">Loading...</div>
+  </div>
+  
+  <button class="menu-btn" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i> Menu
+  </button>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="menu" id="menu">
+  <div class="menu-balance">
+    <i class="fas fa-wallet"></i>
+    Balance: <span id="balanceAmount">$0.00</span>
+  </div>
+
+  <a id="dashboardLink">
+    <i class="fas fa-home"></i>
+    Dashboard
+  </a>
+
+  <a id="boostServiceLink">
+    <i class="fas fa-rocket"></i>
+    Boost Service
+  </a>
+
+  <a id="otherServiceLink">
+    <i class="fas fa-layer-group"></i>
+    Other Service
+  </a>
+
+  <a id="addFundsLink">
+    <i class="fas fa-plus-circle"></i>
+    Add Funds
+  </a>
+
+  <a id="orderHistoryLink">
+    <i class="fas fa-history"></i>
+    Order History
+  </a>
+
+  <a class="active">
+    <i class="fas fa-robot"></i>
+    Panel
+  </a>
+
+  <a id="logoutLink">
+    <i class="fas fa-sign-out-alt"></i>
+    Logout
+  </a>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="content">
+  <!-- Locked Content Message -->
+  <div class="locked-container">
+    <div class="lock-icon">
+      <i class="fas fa-lock"></i>
+    </div>
+    
+    <h1 class="locked-title">System Not Available Yet</h1>
+    
+    <p class="locked-message">
+    Panel Service အားအသုံးပြု၍မရနိုင်သေးပါ။Admin မှပြန်ပြင်နေဆဲဖြစ်သည်။
+
+    </p>
+    
+    <p class="locked-message">
+     "မကြာမှီ"
+    </p>
+    
+    <p class="locked-note">
+      <i class="fas fa-info-circle"></i> 
+       Menu Bar နှိမ့်၍အခြား Service များအားပြန်ပြောင်အသုံးပြးပေးပါ။
+    </p>
+  </div>
+</div>
+
+<script>
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCcRzva_qeKlaUH7ORsvvb5F3wOEGTvjTY",
+  authDomain: "knveto-d2a5b.firebaseapp.com",
+  projectId: "knveto-d2a5b",
+  storageBucket: "knveto-d2a5b.firebasestorage.app",
+  messagingSenderId: "717672809912",
+  appId: "1:717672809912:web:06134f4f9e5349e714fb4d"
+};
+
+// Initialize Firebase
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log("Firebase initialized successfully");
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// DOM Elements
+const menu = document.getElementById('menu');
+const profileInitial = document.getElementById('profileInitial');
+const userName = document.getElementById('userName');
+const balanceAmount = document.getElementById('balanceAmount');
+
+// Menu links
+const dashboardLink = document.getElementById('dashboardLink');
+const boostServiceLink = document.getElementById('boostServiceLink');
+const otherServiceLink = document.getElementById('otherServiceLink');
+const addFundsLink = document.getElementById('addFundsLink');
+const orderHistoryLink = document.getElementById('orderHistoryLink');
+const botPanelLink = document.getElementById('botPanelLink');
+const logoutLink = document.getElementById('logoutLink');
+
+// User data
+let currentUser = null;
+let userBalance = 0.00;
+
+// Toggle menu function
+function toggleMenu() {
+  menu.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+  const isClickInsideMenu = menu.contains(event.target);
+  const isClickOnMenuButton = event.target.closest('.menu-btn') || event.target.closest('.user-profile');
+  
+  if (!isClickInsideMenu && !isClickOnMenuButton && menu.classList.contains('active')) {
+    menu.classList.remove('active');
+  }
+});
+
+// Extract first letter of name (or email if name not available)
+function getProfileInitial(displayName, email) {
+  if (displayName && displayName.trim().length > 0) {
+    return displayName.trim().charAt(0).toUpperCase();
+  } else if (email && email.trim().length > 0) {
+    return email.trim().charAt(0).toUpperCase();
+  }
+  return "?";
+}
+
+// Update balance display
+function updateBalanceDisplay() {
+  balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+}
+
+// Load user balance from Firestore
+function loadUserBalance(userId) {
+  if (!db) {
+    console.error("Firestore not available");
+    return;
+  }
+  
+  db.collection('users').doc(userId).get()
+    .then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        userBalance = data.balance || data.dollars || 0;
+        console.log("User balance loaded:", userBalance);
+      } else {
+        // Create user document if doesn't exist
+        db.collection('users').doc(userId).set({
+          balance: 0,
+          email: currentUser.email,
+          displayName: currentUser.displayName || "User",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          console.log("New user document created");
+          userBalance = 0;
+        });
+      }
+      updateBalanceDisplay();
+    })
+    .catch((error) => {
+      console.error("Error loading user balance:", error);
+      userBalance = 0;
+      updateBalanceDisplay();
+    });
+}
+
+// Update user profile in header
+function updateUserProfile(user) {
+  const displayName = user.displayName || "User";
+  const email = user.email || "No email";
+  
+  // Get first letter for profile circle
+  const initial = getProfileInitial(displayName, email);
+  profileInitial.textContent = initial;
+  
+  // Update user name (show only first name if available)
+  const firstName = displayName.split(' ')[0];
+  userName.textContent = firstName;
+  
+  // For demonstration, if name starts with "Khant", show "K"
+  if (displayName.toLowerCase().includes("khant")) {
+    profileInitial.textContent = "K";
+  }
+  
+  currentUser = user;
+  
+  // Load user balance
+  loadUserBalance(user.uid);
+}
+
+// Setup navigation links
+function setupNavigation() {
+  // Dashboard
+  dashboardLink.addEventListener('click', function() {
+    window.location.href = 'index.html';
+  });
+  
+  // Boost Service
+  boostServiceLink.addEventListener('click', function() {
+    window.location.href = 'smmpanel.html';
+  });
+  
+  // Other Service
+  otherServiceLink.addEventListener('click', function() {
+    window.location.href = 'service.html';
+  });
+  
+  // Add Funds
+  addFundsLink.addEventListener('click', function() {
+    window.location.href = 'coins.html';
+  });
+  
+  // Order History
+  orderHistoryLink.addEventListener('click', function() {
+    window.location.href = 'history.html';
+  });
+  
+  // Logout
+  logoutLink.addEventListener('click', function() {
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    }).catch((error) => {
+      console.error('Logout error:', error);
+      alert('Logout failed. Please try again.');
+    });
+  });
+}
+
+// Check auth state
+function checkAuthState() {
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      // User is signed in
+      updateUserProfile(user);
+      setupNavigation();
+    } else {
+      // No user is signed in, redirect to login
+      window.location.href = 'index.html';
+    }
+  });
+}
+
+// Initialize the app
+function initApp() {
+  try {
+    checkAuthState();
+  } catch (error) {
+    console.error('Initialization error:', error);
+    // Fallback: show guest mode
+    profileInitial.textContent = "G";
+    userName.textContent = "Guest";
+    updateBalanceDisplay();
+  }
+}
+
+// Start the app when page loads
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>

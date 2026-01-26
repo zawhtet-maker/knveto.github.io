@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost Services - KNVETO SHOP</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: #f4f5fb;
+            min-height: 100vh;
+        }
+        
+        /* ===== HEADER ===== */
+        .header {
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            position: relative;
+            z-index: 1001;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .profile-circle {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .menu-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* ===== MENU BAR ===== */
+        .menu {
+            position: fixed;
+            top: 60px;
+            right: -260px;
+            width: 260px;
+            height: calc(100% - 60px);
+            background: #ffffff;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+            transition: 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .menu.active {
+            right: 0;
+        }
+        
+        .menu-balance {
+            background: #f5f6ff;
+            padding: 16px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-balance i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        #balanceAmount {
+            color: #4CAF50;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+        
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f1f1;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        
+        .menu a i {
+            width: 18px;
+            color: #667eea;
+        }
+        
+        .menu a:hover {
+            background: #f7f8ff;
+            padding-left: 20px;
+        }
+        
+        .menu a.active {
+            background: #f0f5ff;
+            color: #667eea;
+            font-weight: 600;
+            border-left: 3px solid #667eea;
+        }
+        
+        /* ===== SMM PANEL CONTAINER ===== */
+        .smm-container {
+            padding: 20px 16px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .panel-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        /* ===== ORDER FORM ===== */
+        .order-form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+        
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+        
+        .form-input.readonly {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+        
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        
+        /* ===== SERVICE INFO CARD ===== */
+        .service-info-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .info-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            font-size: 11px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .cost-highlight {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        /* ===== QUICK QUANTITY BUTTONS ===== */
+        .quick-quantity-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .quantity-btn {
+            padding: 8px 14px;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            background: transparent;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .quantity-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* ===== ORDER BUTTON ===== */
+        .order-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .order-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .order-button:disabled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .balance-warning {
+            text-align: center;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-top: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        /* ===== PRICE TAG ===== */
+        .price-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e8f4ff;
+            color: #1877F2;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .smm-container {
+                padding: 16px 12px;
+            }
+            
+            .order-form-container {
+                padding: 16px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .panel-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+     <div class="logo" onclick="goHome()">KNVETO SHOP</div>
+        
+        <div class="user-profile" onclick="toggleMenu()">
+            <div class="profile-circle" id="profileInitial">?</div>
+            <div class="user-name" id="userName">Loading...</div>
+        </div>
+        
+        <button class="menu-btn" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+    </div>
+
+    <!-- ===== MENU ===== -->
+    <div class="menu" id="menu">
+        <div class="menu-balance">
+            <i class="fas fa-wallet"></i>
+            Balance: <span id="balanceAmount">$0.00</span>
+        </div>
+
+        <a onclick="goHome()">
+            <i class="fas fa-home"></i>
+            Dashboard
+        </a>
+
+        <a class="active">
+            <i class="fas fa-rocket"></i>
+            Boost Service
+        </a>
+
+        <a onclick="openPage('service.html')">
+            <i class="fas fa-layer-group"></i>
+            Other Service
+        </a>
+
+        <a onclick="openPage('coins.html')">
+            <i class="fas fa-plus-circle"></i>
+            Add Funds
+        </a>
+
+        <a onclick="openPage('history.html')">
+            <i class="fas fa-history"></i>
+            Order History
+        </a>
+
+        <a onclick="openPage('panel.html')">
+            <i class="fas fa-robot"></i>
+            Panel
+        </a>
+
+       <a onclick="showLogoutConfirm()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </a>
+    </div>
+
+    <!-- ===== SMM PANEL ===== -->
+    <div class="smm-container">
+        <h1 class="panel-title">
+            <i class="fas fa-rocket" style="color:#667eea;"></i>
+            Boost Services
+        </h1>
+        <p class="panel-subtitle">Order social media services with instant delivery</p>
+        
+        <!-- ORDER FORM -->
+        <div class="order-form-container">
+         
+            <!-- Category Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-bolt"></i>
+                    Category
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-globe"></i>
+                        Soical Media Choice
+                    </label>
+                    <select class="form-select" id="categorySelect" onchange="onCategoryChange()">
+                        <option value="">Select a category</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="telegram">Telegram</option>
+                <option value="instagram">Instagram</option>
+                <option value="twitter">Twitter</option>
+                        <option value="cheap">အတန်ဆုံး Service များ</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Service Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-bolt"></i>
+            Service
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-rocket"></i>
+                        Service Type
+                    </label>
+                    <select class="form-select" id="serviceSelect" onchange="onServiceChange()" disabled>
+                        <option value="">Please select category first</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Service Information Card -->
+            <div class="service-info-card" id="serviceInfoCard">
+                <div class="info-card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Service Information
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Service:</span>
+                        <span class="info-value" id="infoService">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Price per 1000:</span>
+                        <span class="info-value" id="infoPrice">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Average Time:</span>
+                        <span class="info-value" id="infoTime">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Min Order:</span>
+                        <span class="info-value" id="infoMin">-</span>
+                    </div>
+                </div>
+                <div class="cost-highlight" id="costHighlight">
+                    $0.00
+                </div>
+            </div>
+            
+            <!-- Order Details Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    Order Details
+                </h3>
+                
+                <!-- Note Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-sticky-note"></i>
+                        Note
+                    </label>
+                    <textarea class="form-textarea form-input readonly" id="noteField" readonly placeholder="Service description will appear here..."></textarea>
+                </div>
+                
+                <!-- Quantity Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-unlock"></i>
+                        Quantity
+                    </label>
+                    <input type="number" class="form-input" id="quantityField" 
+                           placeholder="Enter any quantity you want" min="1" 
+                           oninput="calculateCost()" disabled>
+                    
+                    <!-- Quick Quantity Buttons -->
+                    <div class="quick-quantity-container" id="quickQuantityButtons">
+                    </div>
+                </div>
+                
+                <!-- Cost Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        Cost
+                    </label>
+                    <input type="text" class="form-input readonly" id="coastField" 
+                           placeholder="Total cost will be calculated here" readonly>
+                </div>
+                
+                <!-- Link Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-link"></i>
+                        Link
+                    </label>
+                    <input type="text" class="form-input" id="linkField" 
+                           placeholder="Enter your profile/post link (e.g., https://facebook.com/yourpage)"
+                           oninput="calculateCost()" disabled>
+                </div>
+                
+                <!-- Average Time Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i>
+                        Average Time
+                    </label>
+                    <input type="text" class="form-input readonly" id="timeField" 
+                           placeholder="Delivery time will appear here" readonly>
+                </div>
+            </div>
+            
+            <!-- Order Button -->
+            <button class="order-button" id="orderButton" onclick="placeOrderWithLoading()" disabled>
+                <i class="fas fa-check-circle"></i>
+                Confirm Order
+            </button>
+            
+            <!-- Balance Warning -->
+            <div class="balance-warning" id="balanceWarning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Insufficient balance! Please add funds to your account.</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SUCCESS MODAL -->
+    <div class="success-modal" id="successModal">
+        <div class="success-box">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="success-title">Order Successful!</h2>
+            <p class="success-text" id="successText">
+                SMM Panel Order has been placed successfully.<br>
+                Your order is now being processed.
+            </p>
+            <div class="order-id" id="orderIdDisplay">ORDER-000000</div>
+            <div class="modal-buttons">
+                <button class="modal-btn close" onclick="closeSuccessModal()">Close</button>
+                <button class="modal-btn history" onclick="viewOrderHistory()">View Order History</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* SUCCESS MODAL STYLES */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 4000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .success-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            animation: modalAppear 0.4s ease-out;
+        }
+        
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: white;
+        }
+        
+        .success-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 12px;
+        }
+        
+        .success-text {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .order-id {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 15px 0;
+            letter-spacing: 1px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-btn.close {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .modal-btn.history {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script>
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCcRzva_qeKlaUH7ORsvvb5F3wOEGTvjTY",
+    authDomain: "knveto-d2a5b.firebaseapp.com",
+    projectId: "knveto-d2a5b",
+    storageBucket: "knveto-d2a5b.firebasestorage.app",
+    messagingSenderId: "717672809912",
+    appId: "1:717672809912:web:06134f4f9e5349e714fb4d"
+};
+
+// Initialize Firebase
+try {
+    firebase.initializeApp(firebaseConfig);
+} catch (error) {
+    console.error('Firebase init error:', error);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Global variables
+let currentUser = null;
+let userBalance = 0;
+let selectedService = null;
+
+// Services data
+const servicesData = {
+    facebook: [
+        { 
+            id: 'fb_MM_followers', 
+            name: '🇲🇲Facebook MM Followers', 
+            price: 4,
+            note: 'FaceBook 🇲🇲MM Follower သည် Page/Account တွက်ပါရသည်။ Account တိုးချင်ပါက Add fri ပိတ်ပြီး Follow ဖွင့်ထားပေးပါ။',
+            min: 100,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '109-110 Hours',
+            icon: '👥'
+        },
+        { 
+            id: 'fb_follower', 
+            name: 'Facebook Pf/Page Follower Cheap ကြာနိုင်', 
+            price: 0.4,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 1000,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_like', 
+            name: 'Facebook Reaction 👍Likes', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+                { 
+            id: 'fb_Love', 
+            name: 'Facebook Reaction ❤️Love',
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_Care', 
+            name: 'Facebook Reaction 🤗Care', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_Wow', 
+            name: 'Facebook 😲Wow ', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_cares', 
+            name: 'Facebook 🥰Car', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_haha', 
+            name: 'Facebook 🤣haha', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_sad', 
+            name: 'Facebook 😭sad', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_angry', 
+            name: 'Facebook 😡Angry', 
+            price: 0.3428,
+            note: 'Link: Facebook Post LinkStart: InstantSpeed: 5k-10k per daysRefill: No refill',
+            min: 40,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-2Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'fb_reactions', 
+            name: 'Facebook Reactions', 
+            price: 0.01,
+            note: 'Like, Love, Haha, Wow, Sad, Angry reactions. Mix of different reaction types.',
+            min: 10,
+            max: 50000,
+            perUnit: 1,
+            averageTime: '6-12 Hours',
+            icon: '😀'
+        },
+    ]
+};
+
+// DOM Elements
+const menu = document.getElementById('menu');
+const profileInitial = document.getElementById('profileInitial');
+const userName = document.getElementById('userName');
+const balanceAmount = document.getElementById('balanceAmount');
+
+// On page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 SMM Panel loaded');
+    
+    // Setup menu button click events
+    document.querySelector('.menu-btn').onclick = toggleMenu;
+    document.querySelector('.user-profile').onclick = toggleMenu;
+    
+    // Check auth state
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            currentUser = user;
+            updateUserProfile(user);
+            loadUserBalance();
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+    
+    // Setup navigation links in menu
+    setupNavigation();
+    
+    // Initialize quick buttons
+    setupQuickQuantityButtons();
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + M to toggle menu
+        if (e.ctrlKey && e.key === 'm') {
+            e.preventDefault();
+            toggleMenu();
+        }
+        
+        // Escape to close menu
+        if (e.key === 'Escape' && menu.classList.contains('active')) {
+            menu.classList.remove('active');
+        }
+    });
+    
+    // Initialize link validation
+    document.getElementById('linkField').addEventListener('blur', function() {
+        const link = this.value.trim();
+        if (link && !isValidUrl(link)) {
+            alert('Please enter a valid URL (starting with http:// or https://)');
+            this.focus();
+        }
+    });
+    
+    // Auto-calculate on quantity change
+    document.getElementById('quantityField').addEventListener('input', function() {
+        calculateCost();
+    });
+    
+    // Auto-calculate on link input
+    document.getElementById('linkField').addEventListener('input', function() {
+        calculateCost();
+    });
+});
+
+// Toggle menu function
+function toggleMenu() {
+    menu.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    const isClickInsideMenu = menu.contains(event.target);
+    const isClickOnMenuButton = event.target.closest('.menu-btn') || 
+                                event.target.closest('.user-profile');
+    
+    if (!isClickInsideMenu && !isClickOnMenuButton && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+    }
+});
+
+// Update user profile in header
+function updateUserProfile(user) {
+    const displayName = user.displayName || "User";
+    const email = user.email || "No email";
+    
+    // Get first letter for profile circle
+    function getProfileInitial(name, email) {
+        if (name && name.trim().length > 0) {
+            return name.trim().charAt(0).toUpperCase();
+        } else if (email && email.trim().length > 0) {
+            return email.trim().charAt(0).toUpperCase();
+        }
+        return "U";
+    }
+    
+    const initial = getProfileInitial(displayName, email);
+    profileInitial.textContent = initial;
+    
+    // Update user name (show only first name if available)
+    const firstName = displayName.split(' ')[0];
+    userName.textContent = firstName || "User";
+    
+    // For demonstration, if name starts with "Khant", show "K"
+    if (displayName.toLowerCase().includes("khant")) {
+        profileInitial.textContent = "K";
+    }
+}
+
+// Load user balance
+async function loadUserBalance() {
+    try {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists) {
+            userBalance = userDoc.data().balance || 0;
+            balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+        } else {
+            // Create user document if doesn't exist
+            await db.collection('users').doc(currentUser.uid).set({
+                balance: 0,
+                email: currentUser.email,
+                displayName: currentUser.displayName || "User",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            userBalance = 0;
+            balanceAmount.textContent = `$${userBalance.toFixed(2)}`;
+        }
+    } catch (error) {
+        console.error('Error loading balance:', error);
+        balanceAmount.textContent = '$0.00';
+    }
+}
+
+// Setup navigation
+function setupNavigation() {
+    // Dashboard
+    document.querySelector('a[onclick="goHome()"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        goHome();
+    });
+    
+    // Other Service
+    document.querySelector('a[onclick*="service.html"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        openPage('service.html');
+    });
+    
+    // Add Funds
+    document.querySelector('a[onclick*="coins.html"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        openPage('coins.html');
+    });
+    
+    // Order History
+    document.querySelector('a[onclick*="history.html"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        openPage('history.html');
+    });
+    
+    // Bot Panel
+    document.querySelector('a[onclick*="panel.html"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        openPage('panel.html');
+    });
+  
+    // Logout
+    document.querySelector('a[onclick*="showLogoutConfirm"]').addEventListener('click', function(e) {
+        e.preventDefault();
+        showLogoutConfirm();
+    });
+}
+
+// Setup quick quantity buttons
+function setupQuickQuantityButtons() {
+    const quickButtons = document.querySelectorAll('.quantity-btn');
+    quickButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const quantity = parseInt(this.textContent.replace(/,/g, ''));
+            setQuantity(quantity);
+        });
+    });
+}
+
+// Navigation functions
+function goHome() {
+    window.location.href = 'index.html';
+}
+
+function openPage(page) {
+    window.location.href = page;
+}
+
+function showLogoutConfirm() {
+    if (confirm('Are you sure you want to logout?')) {
+        auth.signOut().then(() => {
+            window.location.href = 'login.html';
+        });
+    }
+}
+
+// When category changes
+function onCategoryChange() {
+    const categoryId = document.getElementById('categorySelect').value;
+    const serviceSelect = document.getElementById('serviceSelect');
+    
+    serviceSelect.innerHTML = '<option value="">Select a service</option>';
+    serviceSelect.disabled = !categoryId;
+    
+    if (categoryId && servicesData[categoryId]) {
+        servicesData[categoryId].forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.id;
+            option.textContent = `${service.name} - $${service.price}`;
+            serviceSelect.appendChild(option);
+        });
+    }
+    
+    // Reset all fields
+    resetForm();
+}
+
+// When service changes
+function onServiceChange() {
+    const categoryId = document.getElementById('categorySelect').value;
+    const serviceId = document.getElementById('serviceSelect').value;
+    
+    if (!categoryId || !serviceId) {
+        resetForm();
+        return;
+    }
+    
+    // Find selected service
+    selectedService = servicesData[categoryId].find(s => s.id === serviceId);
+    
+    if (selectedService) {
+        // Update info card
+        document.getElementById('infoService').textContent = selectedService.name;
+        document.getElementById('infoPrice').textContent = `$${selectedService.price}`;
+        document.getElementById('infoTime').textContent = selectedService.averageTime;
+        document.getElementById('infoMin').textContent = selectedService.min.toLocaleString();
+        document.getElementById('costHighlight').textContent = `$${selectedService.price} per ${selectedService.perUnit === 1 ? 'unit' : '1000'}`;
+        document.getElementById('serviceInfoCard').style.display = 'block';
+        
+        // Update form fields
+        document.getElementById('noteField').value = selectedService.note;
+        document.getElementById('quantityField').value = '';
+        document.getElementById('quantityField').disabled = false;
+        document.getElementById('linkField').disabled = false;
+        document.getElementById('timeField').value = selectedService.averageTime;
+        
+        // Show quick quantity buttons
+        document.getElementById('quickQuantityButtons').style.display = 'flex';
+        
+        // Update placeholder to show minimum requirement
+        document.getElementById('quantityField').placeholder = `Minimum: ${selectedService.min} - Maximum: ${selectedService.max.toLocaleString()}`;
+    }
+}
+
+// Calculate cost
+function calculateCost() {
+    if (!selectedService) return;
+    
+    const quantity = parseInt(document.getElementById('quantityField').value) || 0;
+    const link = document.getElementById('linkField').value.trim();
+    
+    // Validate quantity
+    let validQuantity = quantity;
+    if (quantity > 0) {
+        if (quantity < selectedService.min) {
+            // Show warning but don't auto-change
+            document.getElementById('quantityField').style.borderColor = '#e74c3c';
+        } else if (quantity > selectedService.max) {
+            validQuantity = selectedService.max;
+            document.getElementById('quantityField').value = validQuantity;
+            document.getElementById('quantityField').style.borderColor = '#e74c3c';
+            alert(`Maximum order quantity is ${selectedService.max.toLocaleString()}`);
+        } else {
+            document.getElementById('quantityField').style.borderColor = '#667eea';
+        }
+    } else {
+        document.getElementById('quantityField').style.borderColor = '#e8e8e8';
+    }
+    
+    // Calculate total cost
+    const totalCost = (selectedService.price * validQuantity / selectedService.perUnit);
+    
+    // Update coast field
+    document.getElementById('coastField').value = validQuantity > 0 ? `$${totalCost.toFixed(2)}` : '';
+    
+    // Update cost highlight
+    document.getElementById('costHighlight').textContent = validQuantity > 0 ? `$${totalCost.toFixed(2)}` : `$${selectedService.price} per ${selectedService.perUnit === 1 ? 'unit' : '1000'}`;
+    
+    // Check if order can be placed
+    const orderButton = document.getElementById('orderButton');
+    const balanceWarning = document.getElementById('balanceWarning');
+    
+    if (validQuantity === 0 || !link) {
+        orderButton.disabled = true;
+        orderButton.innerHTML = `<i class="fas fa-exclamation-circle"></i> Enter Quantity and Link`;
+        balanceWarning.style.display = 'none';
+    } else if (validQuantity < selectedService.min) {
+        orderButton.disabled = true;
+        orderButton.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Minimum ${selectedService.min} Required`;
+        balanceWarning.style.display = 'none';
+    } else if (totalCost > userBalance) {
+        orderButton.disabled = true;
+        orderButton.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Insufficient Balance`;
+        balanceWarning.style.display = 'flex';
+    } else {
+        orderButton.disabled = false;
+        orderButton.innerHTML = `<i class="fas fa-check-circle"></i> Confirm Order ($${totalCost.toFixed(2)})`;
+        balanceWarning.style.display = 'none';
+    }
+}
+
+// Reset form
+function resetForm() {
+    selectedService = null;
+    document.getElementById('serviceInfoCard').style.display = 'none';
+    document.getElementById('noteField').value = '';
+    document.getElementById('quantityField').value = '';
+    document.getElementById('quantityField').style.borderColor = '#e8e8e8';
+    document.getElementById('quantityField').disabled = true;
+    document.getElementById('quantityField').placeholder = 'Enter any quantity you want';
+    document.getElementById('coastField').value = '';
+    document.getElementById('linkField').value = '';
+    document.getElementById('linkField').disabled = true;
+    document.getElementById('timeField').value = '';
+    document.getElementById('orderButton').disabled = true;
+    document.getElementById('balanceWarning').style.display = 'none';
+    document.getElementById('quickQuantityButtons').style.display = 'none';
+}
+
+// Set quantity function
+function setQuantity(quantity) {
+    if (!selectedService) return;
+    
+    document.getElementById('quantityField').value = quantity;
+    calculateCost();
+}
+// Place order
+async function placeOrder() {
+    try {
+        const categoryId = document.getElementById('categorySelect').value;
+        const serviceId = document.getElementById('serviceSelect').value;
+        const quantityInput = document.getElementById('quantityField').value;
+        const link = document.getElementById('linkField').value.trim();
+        
+        if (!selectedService || !categoryId || !serviceId || !link) {
+            alert('Please fill all required fields');
+            return;
+        }
+        
+        const quantity = parseInt(quantityInput);
+        
+        if (quantity < selectedService.min) {
+            alert(`Minimum order quantity is ${selectedService.min}`);
+            return;
+        }
+        
+        if (quantity > selectedService.max) {
+            alert(`Maximum order quantity is ${selectedService.max.toLocaleString()}`);
+            return;
+        }
+        
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid quantity');
+            return;
+        }
+        
+        const totalCost = (selectedService.price * quantity / selectedService.perUnit);
+        
+        if (totalCost > userBalance) {
+            alert('Insufficient balance! Please add funds to your account.');
+            return;
+        }
+        
+        // Generate 6-digit order ID
+        const orderId = Math.floor(100000 + Math.random() * 900000);
+        
+        // Create order in Firestore
+        await db.collection('orders').add({
+            orderId: orderId,
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: currentUser.email.split('@')[0],
+            serviceName: selectedService.name,
+            serviceCategory: categoryId,
+            serviceType: serviceId,
+            link: link,
+            quantity: quantity,
+            pricePer: selectedService.price,
+            perUnit: selectedService.perUnit,
+            totalCost: totalCost,
+            averageTime: selectedService.averageTime,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Deduct from user balance
+        const newBalance = userBalance - totalCost;
+        await db.collection('users').doc(currentUser.uid).update({
+            balance: newBalance,
+            ordersCount: firebase.firestore.FieldValue.increment(1)
+        });
+        
+        userBalance = newBalance;
+        await loadUserBalance();
+        
+        // Show success modal
+        document.getElementById('orderIdDisplay').textContent = `ORDER-${orderId}`;
+        document.getElementById('successText').innerHTML = `
+            <strong>Order Details:</strong><br><br>
+            <strong>Service:</strong> ${selectedService.name}<br>
+            <strong>Quantity:</strong> ${quantity.toLocaleString()}<br>
+            <strong>Total Cost:</strong> $${totalCost.toFixed(2)}<br>
+            <strong>Order ID:</strong> ${orderId}<br><br>
+            Your order is now being processed.
+        `;
+        document.getElementById('successModal').style.display = 'flex';
+        
+        // Reset form
+        resetForm();
+        document.getElementById('categorySelect').value = '';
+        document.getElementById('serviceSelect').value = '';
+        document.getElementById('serviceSelect').disabled = true;
+        
+    } catch (error) {
+        console.error('Order error:', error);
+        alert('Order failed: ' + error.message);
+    }
+}
+
+// Modal functions
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+function viewOrderHistory() {
+    window.location.href = 'history.html';
+}
+// Add loading animation for order button
+async function placeOrderWithLoading() {
+    const orderButton = document.getElementById('orderButton');
+    const originalText = orderButton.innerHTML;
+    
+    orderButton.disabled = true;
+    orderButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    try {
+        await placeOrder();
+    } catch (error) {
+        console.error('Order error:', error);
+    } finally {
+        orderButton.disabled = false;
+        orderButton.innerHTML = originalText;
+    }
+}
+
+// Helper function to validate URLs
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+// Add more Instagram services
+servicesData.instagram = [
+    { 
+        id: 'ig_followers', 
+        name: 'Instagram Followers', 
+        price: 2.572,
+        note: 'Instagram Follower ဈေးကြီးသာပြန်မကျတဲ့သာကိုထည့်ပေးထားတာပါ။',
+        min: 100,
+        max: 100000,
+        perUnit: 1000,
+        averageTime: '3-4 Hours',
+        icon: '📸'
+    },
+    { 
+        id: 'ig_likes', 
+        name: 'Instagram Likes', 
+        price: 0.457,
+        note: '',
+        min: 100,
+        max: 50000,
+        perUnit: 1000,
+        averageTime: '1-2 Hours',
+        icon: '❤️'
+    },
+    { 
+        id: 'ig_views', 
+        name: 'Instagram Views', 
+        price: 0.021,
+        note: 'Cheap Service.',
+        min: 5000,
+        max: 1000000,
+        perUnit: 10000,
+        averageTime: '2-3 Hours',
+        icon: '👁️'
+    },
+    { 
+        id: 'ig_comments', 
+        name: 'Instagram Comments ကျပန်း', 
+        price: 0.9,
+        note: 'Not Average Time.',
+        min: 10,
+        max: 10000,
+        perUnit: 1000,
+        averageTime: 'No Hour',
+        icon: '💬'
+    },
+];
+
+// Add YouTube services
+servicesData.youtube = [
+    { 
+        id: 'yt_subscribers', 
+        name: 'YouTube Subscribers', 
+        price: 25.71,
+        note: 'Real YouTube channel subscribers. Active viewers who watch your content.',
+        min: 100,
+        max: 25000,
+        perUnit: 1000,
+        averageTime: '130-140 Hours',
+        icon: '▶️'
+    },
+    { 
+        id: 'yt_like', 
+        name: 'YouTube like [ပြန်မကျ]', 
+        price: 0.9428,
+        note: 'Real likes on YouTube videos. Improves video ranking algorithm',
+        min: 100,
+        max: 100000,
+        perUnit: 1000,
+        averageTime: '3-4 Hours',
+        icon: '👁️'
+    },
+    { 
+        id: 'yt_views', 
+        name: 'YouTube Views Life Time ပြန်မကျ', 
+        price: 1.42,
+        note: 'High-retention YouTube video views. Watch time 60%+ on average.',
+        min: 100,
+        max: 50000,
+        perUnit: 1000,
+        averageTime: '4-5 Hours',
+        icon: '👍'
+    },
+];
+    // Add TikTok services
+    servicesData.tiktok = [
+        { 
+            id: 'tt_followers', 
+            name: 'TikTok Followers ပြန်ကျတာနည်း', 
+            price: 2.50,
+            note: 'TikTok ဘက်ကပြန်ချနေတာမို့ Admin တို့ဘက်မှအာမမခံပါ၊ကျချင်ကျမယ်အကျနည်းမယ်။လုံးဝမကျတဲ့အခါတွေလဲရှိပါတယ်။',
+            min: 50,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '4-7 Hours',
+            icon: '🎵'
+        },
+        { 
+            id: 'tt_follower', 
+            name: 'TikTok Followers ဈေးချိူ',
+            price: 1.53,
+            note: 'TikTok ဘက်ကပြန်ချနေတာမို့ Admin တို့ဘက်မှအာမမခံပါ၊ကျချင်ကျမယ်။ဒါပ့မဲ့ခုတလောမကျတဲ့အခါများပါတယ်။',
+            min: 10,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '8-12 Hours',
+            icon: '🎵'
+        },
+        { 
+            id: 'tt_likes', 
+            name: 'TikTok Likes အကျနည်း |Old Service|', 
+            price: 0.142,
+            note: ' TikTok ဘက်ကပြန်ချနေတာမို့ Admin တို့ဘက်မှအာမမခံပါ၊ကျချင်ကျမယ်။ဒါပ့မဲ့ခုတလောမကျတဲ့အခါများပါတယ်။',
+            min: 100,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '5-12 Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'tt_likes_high', 
+            name: 'TikTok Likes |High Qality|', 
+            price: 0.1172,
+            note: 'TikTok ဘက်ကပြန်ချနေတာမို့ Admin တို့ဘက်မှအာမမခံပါ၊ကျချင်ကျမယ်။ High Quality မို့ခုထိ‌တော့မကျတာများပါတယ်။',
+            min: 120,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '16-20 Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'tt_likes_View', 
+            name: 'TikTok Likes+View [လုံးဝပြန်မကျ]', 
+            price: 0.777,
+            note: 'LifeTime တစ်သက်သာမို့လုံးဝပြန်မကျပါ ၊ တစ်ခါတစ်ခါလေ View မပါတာမျိူးတော့ဖြစ်တတ်ပါတယ်။',
+            min: 10,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '3-5 Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'tt_views', 
+            name: 'TikTok Views | Complain လက်ခံ', 
+            price: 0.0257,
+            note: 'This Service is so fast',
+            min: 550,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-3 Hours',
+            icon: '👁️'
+        },
+        { 
+            id: 'tt_save', 
+            name: 'TikTok Vd Save', 
+            price: 0.0228,
+            note: 'This Service is So Fast',
+            min: 500,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '1-3 Hours',
+            icon: '💬'
+        },
+        { 
+            id: 'tt_share', 
+            name: 'TikTok share',
+            price: 0.0857,
+            note: 'This Service is So Fast',
+            min: 400,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '1-3Hours',
+            icon: '💬'
+        },
+    ];
+    
+    // Add Telegram services
+    servicesData.telegram = [
+        { 
+            id: 'tg_mm_sub', 
+            name: '🇲🇲Telegram Subscriber ', 
+            price: 1.00,
+            note: '_Gp/Channel ဘယ်ဟာဖြစ်ဖြစ် တိုးလို့ရပါတယ်_Public Channel/Group ဖြစ်ရပါမယ်_Channel သည် 18+ , ဆေးဝါးရောင်းချခြင်း , Scam (လိမ်လည်ခြင်း) , ဘာမှမတင်ထားသော Channel မဖြစ်ရပါ။ ဖြစ်နေပါက Refund (ပြန်အမ်းငွေ) ရနိုင်မည် မဟုတ်ပါ။_အနည်းဆုံး Post သုံးခု ရှိရပါမည်',
+            min: 50,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '2-4 Hours',
+            icon: '📱'
+        },
+                { 
+            id: 'tg_member', 
+            name: 'Telegram Members Auto Refill[30 Days]',
+            price: 0.912,
+            note: 'Channel / Group Link.This Service is So Fast',
+            min: 10,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '1-3 Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'tg_views', 
+            name: 'Telegram Views', 
+            price: 0.008,
+            note: 'Telegram Post View ဖြစ်သည့်အတွက်တိုးမည် Post Link သာချပေးပါ။',
+            min: 1000,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '6-12 Hours',
+            icon: '👁️'
+        },
+        { 
+            id: 'tg_re_postive',
+            name: 'Telegram Reaction + View |postive 🥳😍❤️🎉🥰👏👍💯   ', 
+            price: 0.0314,
+            note: 'Telegram Reaction က ကျပန်းတတ်ပါမည် ၊ Postive တွေကကြိုက်ရာတတ်မည်။',
+            min: 200,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '1-3 Hours',
+            icon: '👍'
+        },
+        { 
+            id: 'tg_re_negative',
+            name: 'Telegram Reaction + View | negative🍌👿😡🤬🤮😢💔🖕👎 ', 
+            price: 0.0314,
+            note: 'This Service is So Fast',
+            min: 200,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1-3 Hours',
+            icon: '💬'
+        }
+    ];
+    
+    // Add Twitter services
+    servicesData.twitter = [
+        { 
+            id: 'tw_likes', 
+            name: 'Twitter Likes', 
+            price: 8.828,
+            note: 'Twitter post likes. Real likes on your tweets.',
+            min: 10,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: 'No Limit',
+            icon: '❤️'
+        },
+        { 
+            id: 'tw_views', 
+            name: 'Twitter Views', 
+            price: 0.012,
+            note: 'Twitter video views. Real views on tweet videos.',
+            min: 1000,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: 'No Limited',
+            icon: '👁️'
+        }
+    ];
+    
+    // Add premium services
+    servicesData.cheap = [
+        { 
+            id: 'Cheap_Tt_View', 
+            name: 'TikTok View', 
+            price: 0.017,
+            note: '⚠️ ဝယ်ယူသူများ သိထားရန်• Refill မရပါ - Refill မရသော Service ဖြစ်၍ နားလည်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။ Complain လေးလက်မခံပါဘူးခင်ဗျာ။',
+            min: 1000,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '3-4 Hours',
+            icon: '⭐'
+        },
+        { 
+            id: 'Cheap_Tt_like', 
+            name: 'TikTok Like', 
+            price: 0.028,
+            note: '⚠️ ဝယ်ယူသူများ သိထားရန်• Refill မရပါ - Refill မရသော Service ဖြစ်၍ နားလည်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။ Complain လေးလက်မခံပါဘူးခင်ဗျာ။',
+            min: 1000,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '1-2 Hours',
+            icon: '🎯'
+        },
+        { 
+            id: 'Cheap_Tg_sub', 
+            name: 'Telegram Subscriber {Cheap Price}', 
+            price: 0.25,
+            note: '⚠️ ဝယ်ယူသူများ သိထားရန်• Refill မရပါ - Refill မရသော Service ဖြစ်၍ နားလည်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။ Complain လေးလက်မခံပါဘူးခင်ဗျာ',
+            min: 1000,
+            max: 50000,
+            perUnit: 1000,
+            averageTime: '24-48 Hours',
+            icon: '🎯'
+        },
+   ];
+    
+    // Final initialization
+    console.log('🎯 SMM Panel Ready - Side Menu Version');
+    
+    // Set current year in footer if exists
+    const yearElement = document.getElementById('currentYear');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+    }
+    </script>
+</body>
+</html>
