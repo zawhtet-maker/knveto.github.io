@@ -209,7 +209,7 @@
         }
         
         .chat-messages {
-            height: 300px;
+            height: 350px;
             overflow-y: auto;
             padding: 20px;
             background: #fafafa;
@@ -218,6 +218,12 @@
         .message {
             margin-bottom: 15px;
             max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .message.user {
@@ -274,6 +280,7 @@
             border: 2px solid #e8e8e8;
             border-radius: 10px;
             font-size: 14px;
+            transition: border-color 0.3s;
         }
         
         .chat-input input:focus {
@@ -289,8 +296,48 @@
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s;
         }
-                /* LOADING */
+        
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+        
+        .chat-input button:active {
+            transform: scale(0.95);
+        }
+
+        /* Admin Chat Button */
+        .admin-chat-control {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .admin-chat-control.active {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .admin-chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+        }
+        
+        .admin-send-btn {
+            padding: 10px 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        /* LOADING */
         .loading {
             position: fixed;
             top: 0;
@@ -420,6 +467,17 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
+
+        /* Admin Badge */
+        .admin-badge {
+            background: #f1c40f;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
         
         /* SIMPLE RESPONSIVE */
         @media (max-width: 768px) {
@@ -439,6 +497,10 @@
                 left: 20px;
                 right: 20px;
                 max-width: none;
+            }
+            
+            .message {
+                max-width: 90%;
             }
         }
     </style>
@@ -521,102 +583,110 @@
             <span>Logout</span>
         </a>
     </div>
+    
     <!-- DASHBOARD CARDS -->
-<div class="dashboard" id="dashboard" style="display:none;">
-    <!-- Author Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">
-                <i class="fa-solid fa-user-astronaut"></i>
-            </div>
-            <div>
-                <div class="card-title">Author</div>
-                <div class="card-value" id="username">Loading...</div>
-            </div>
-        </div>
-        <div class="card-desc">Login Username</div>
-    </div>
-    
-    <!-- Start Level Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">
-                <i class="fas fa-rocket"></i>
-            </div>
-            <div>
-                <div class="card-title">Start</div>
-                <div class="card-value" id="userLevel">New User</div>
-            </div>
-        </div>
-        <div class="card-desc">User Level</div>
-    </div>
-    
-    <!-- Balance Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">
-                <i class="fas fa-wallet"></i>
-            </div>
-            <div>
-                <div class="card-title">Account Balance</div>
-                <div class="card-value">$<span id="balanceAmount">0.00</span></div>
-            </div>
-        </div>
-        <div class="card-desc">Available Balance</div>
-    </div>
-    
-    <!-- Orders Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">
-                <i class="fa-solid fa-calculator"></i>
-            </div>
-            <div>
-                <div class="card-title">Panel Orders</div>
-                <div class="card-value"><span id="ordersCount">0</span> Orders</div>
-            </div>
-        </div>
-        <div class="card-desc">All User Orders</div>
-    </div>
-    
-    <!-- Users Card -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div>
-                <div class="card-title">Total Active Users</div>
-                <div class="card-value" id="usersCount">0</div>
-            </div>
-        </div>
-        <div class="card-desc">All Users</div>
-    </div>
-</div>
-
-<!-- CHAT BOX -->
-<div class="chat-section" id="chatSection" style="display:none;">
-    <div class="chat-box">
-        <div class="chat-header">
-            <i class="fas fa-lock"></i>
-           No Message
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message admin">
-                <div class="message-content">
-                    အသုံးပြု၍မရသေးသောကြောင့်အဆင်မပြေတာရှိပါက Tg : @socialxmmadm / Ph No.09686218508 ကိုဆက်သွယ်ပေးပါ။
+    <div class="dashboard" id="dashboard" style="display:none;">
+        <!-- Author Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fa-solid fa-user-astronaut"></i>
                 </div>
-                <div class="message-time">Admin • Just now</div>
+                <div>
+                    <div class="card-title">Author</div>
+                    <div class="card-value" id="username">Loading...</div>
+                </div>
             </div>
+            <div class="card-desc">Login Username</div>
         </div>
-        <div class="chat-input">
-            <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
-            <button onclick="sendMessage()">Send</button>
+        
+        <!-- Start Level Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div>
+                    <div class="card-title">Start</div>
+                    <div class="card-value" id="userLevel">New User</div>
+                </div>
+            </div>
+            <div class="card-desc">User Level</div>
+        </div>
+        
+        <!-- Balance Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div>
+                    <div class="card-title">Account Balance</div>
+                    <div class="card-value">$<span id="balanceAmount">0.00</span></div>
+                </div>
+            </div>
+            <div class="card-desc">Available Balance</div>
+        </div>
+        
+        <!-- Orders Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div>
+                    <div class="card-title">Panel Orders</div>
+                    <div class="card-value"><span id="ordersCount">0</span> Orders</div>
+                </div>
+            </div>
+            <div class="card-desc">All User Orders</div>
+        </div>
+        
+        <!-- Users Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <div class="card-title">Total Active Users</div>
+                    <div class="card-value" id="usersCount">0</div>
+                </div>
+            </div>
+            <div class="card-desc">All Users</div>
         </div>
     </div>
-</div>
+    
+    <!-- CHAT BOX -->
+    <div class="chat-section" id="chatSection" style="display:none;">
+        <div class="chat-box">
+            <div class="chat-header">
+                <i class="fas fa-comments"></i>
+                Support Chat
+                <span id="adminBadge" class="admin-badge" style="display:none;">Admin Mode</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be loaded here dynamically -->
+            </div>
+            <div class="chat-input" id="userChatInput">
+                <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off">
+                <button onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+            <!-- Admin Chat Control -->
+            <div class="admin-chat-control" id="adminChatControl">
+                <input type="text" id="adminChatInput" class="admin-chat-input" placeholder="Reply as Admin..." autocomplete="off">
+                <button onclick="sendAdminMessage()" class="admin-send-btn">
+                    <i class="fas fa-shield"></i> Admin Send
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
     // Firebase Configuration
+       // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyCcRzva_qeKlaUH7ORsvvb5F3wOEGTvjTY",
         authDomain: "knveto-d2a5b.firebaseapp.com",
@@ -641,6 +711,8 @@
     // Global variables
     let currentUser = null;
     let chatListener = null;
+    let isAdmin = false;
+    const ADMIN_EMAILS = ['socialxmmadm@gmail.com', 'admin@socialxmm.com']; // ဒီမှာ Admin Email တွေထည့်ပါ
     
     // DOM Elements
     const loadingDiv = document.getElementById('loading');
@@ -653,6 +725,10 @@
     const successMessage = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
     const confirmModal = document.getElementById('confirmModal');
+    const chatInput = document.getElementById('chatInput');
+    const adminChatControl = document.getElementById('adminChatControl');
+    const adminBadge = document.getElementById('adminBadge');
+    const userChatInput = document.getElementById('userChatInput');
     
     // Utility Functions
     function showError(message) {
@@ -684,6 +760,244 @@
         confirmModal.style.display = 'none';
     }
     
+    // ==================== CHAT SYSTEM ====================
+    
+    // Load chat messages from Firestore
+    function loadChatMessages() {
+        if (!currentUser) return;
+        
+        console.log('💬 Loading chat messages for user:', currentUser.uid);
+        
+        // Remove existing listener
+        if (chatListener) {
+            chatListener();
+            chatListener = null;
+        }
+        
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        
+        // Clear chat and show loading
+        chatMessagesDiv.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Loading messages...</div>';
+        
+        // Set up real-time listener for user's chat
+        let query;
+        
+        if (isAdmin) {
+            // Admin ဆိုရင် အကုန်မြင်ရမယ် (သို့) သီးသန့် Admin Chat Collection ထားနိုင်
+            query = db.collection('chats')
+                .orderBy('timestamp', 'asc')
+                .limit(100);
+        } else {
+            // User ဆိုရင် ကိုယ့် Message ပဲမြင်ရမယ်
+            query = db.collection('chats')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('timestamp', 'asc');
+        }
+        
+        chatListener = query.onSnapshot((snapshot) => {
+            if (!snapshot.empty) {
+                chatMessagesDiv.innerHTML = '';
+                
+                snapshot.forEach((doc) => {
+                    const message = doc.data();
+                    addMessageToChat(message);
+                });
+                
+                // Scroll to bottom
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+            } else {
+                // No messages - show welcome message
+                chatMessagesDiv.innerHTML = `
+                    <div class="message admin">
+                        <div class="message-content">
+                            အသုံးပြု၍မရသေးသောကြောင့်အဆင်မပြေတာရှိပါက Tg : @socialxmmadm / Ph No.09686218508 ကိုဆက်သွယ်ပေးပါ။
+                        </div>
+                        <div class="message-time">Admin • Just now</div>
+                    </div>
+                `;
+            }
+        }, (error) => {
+            console.error('❌ Chat listener error:', error);
+            showError('Failed to load messages: ' + error.message);
+        });
+    }
+    
+    // Add message to chat UI
+    function addMessageToChat(message) {
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.sender}`;
+        
+        const time = message.timestamp ? message.timestamp.toDate() : new Date();
+        const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        let senderName = message.sender === 'user' ? 'You' : 'Admin';
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${escapeHtml(message.text)}
+                ${message.sender === 'admin' ? '<span class="admin-badge" style="margin-left:8px;">Admin</span>' : ''}
+            </div>
+            <div class="message-time">
+                ${senderName} • ${timeString}
+            </div>
+        `;
+        
+        chatMessagesDiv.appendChild(messageDiv);
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }
+     
+    // Escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
+    // Send message function (User)
+    async function sendMessage() {
+        if (!chatInput.value.trim()) {
+            showError('Please type a message');
+            return;
+        }
+        
+        if (!currentUser) {
+            showError('You must be logged in');
+            return;
+        }
+        
+        const messageText = chatInput.value.trim();
+        chatInput.value = ''; // Clear input
+        
+        // Clear draft
+        localStorage.removeItem(`chat_draft_${currentUser.uid}`);
+        
+        try {
+            // Save message to Firestore
+            await db.collection('chats').add({
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                userName: currentUser.displayName || currentUser.email.split('@')[0],
+                text: messageText,
+                sender: 'user',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false,
+                replyTo: null
+            });
+            
+            console.log('✅ Message sent successfully');
+            
+        } catch (error) {
+            console.error('❌ Error sending message:', error);
+            showError('Failed to send message: ' + error.message);
+            
+            // Save to local storage as backup
+            saveMessageToLocal(messageText, 'user');
+        }
+    }
+    
+    // Send admin message function
+    async function sendAdminMessage() {
+        const adminInput = document.getElementById('adminChatInput');
+        
+        if (!adminInput.value.trim()) {
+            showError('Please type an admin message');
+            return;
+        }
+        
+        if (!currentUser || !isAdmin) {
+            showError('Admin access required');
+            return;
+        }
+        
+        const messageText = adminInput.value.trim();
+        adminInput.value = '';
+        
+        try {
+            // Admin အနေနဲ့ Message ပို့တဲ့အခါ - ဘယ် User ကိုပို့မှန်း သိဖို့လိုမယ်
+            // ဒီနေရာမှာ နောက်ဆုံး Chat လုပ်တဲ့ User ကို ဖြစ်ဖြစ်၊
+            // ဒါမှမဟုတ် Admin Panel ကနေ User ရွေးလို့ရအောင် လုပ်နိုင်
+            // အခု Demo အတွက် Admin က ပို့လိုက်ရင် User အကုန်မြင်ရအောင် လုပ်ထားပါတယ်
+            
+            // Send to all users or specific user - ဒီနေရာမှာ ကိုယ်ကြိုက်တဲ့ပုံစံထည့်လို့ရ
+            await db.collection('chats').add({
+                userId: 'all_users', // or specific user ID
+                userEmail: 'admin@socialxmm.com',
+                userName: 'System Admin',
+                text: messageText,
+                sender: 'admin',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                read: false,
+                adminId: currentUser.uid,
+                adminEmail: currentUser.email
+            });
+            
+            showSuccess('Admin message sent');
+            console.log('✅ Admin message sent successfully');
+            
+        } catch (error) {
+            console.error('❌ Error sending admin message:', error);
+            showError('Failed to send admin message: ' + error.message);
+        }
+    }
+    
+    // Save message to local storage as backup
+    function saveMessageToLocal(message, sender) {
+        if (!currentUser) return;
+        
+        const storageKey = `local_chats_${currentUser.uid}`;
+        let localMessages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        
+        localMessages.push({
+            text: message,
+            sender: sender,
+            timestamp: new Date().toISOString(),
+            offline: true
+        });
+        
+        localStorage.setItem(storageKey, JSON.stringify(localMessages));
+        showSuccess('Message saved locally. Will sync when online.');
+    }
+    
+    // Save draft message
+    function saveDraft() {
+        if (!currentUser || !chatInput) return;
+        
+        const draft = chatInput.value.trim();
+        localStorage.setItem(`chat_draft_${currentUser.uid}`, draft);
+    }
+    
+    // Load draft message
+    function loadDraft() {
+        if (!currentUser || !chatInput) return;
+        
+        const draft = localStorage.getItem(`chat_draft_${currentUser.uid}`);
+        if (draft) {
+            chatInput.value = draft;
+        }
+    }
+    
+    // Handle Enter key
+    function handleChatKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+    
+    // Handle Admin Enter key
+    function handleAdminKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendAdminMessage();
+        }
+    }
+    
+    // ==================== MAIN AUTH ====================
+    
     // Check authentication on page load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('🚀 Dashboard page loaded');
@@ -697,7 +1011,10 @@
         auth.onAuthStateChanged(function(user) {
             if (user) {
                 currentUser = user;
-                console.log('✅ User authenticated:', user.email);
+                
+                // Check if user is admin
+                isAdmin = ADMIN_EMAILS.includes(user.email);
+                console.log('✅ User authenticated:', user.email, 'Admin:', isAdmin);
                 
                 setTimeout(function() {
                     loadingDiv.style.display = 'none';
@@ -708,17 +1025,41 @@
                     const firstLetter = user.email.charAt(0).toUpperCase();
                     document.getElementById('userAvatar').textContent = firstLetter;
                     
+                    // Show/hide admin controls
+                    if (isAdmin) {
+                        adminChatControl.classList.add('active');
+                        adminBadge.style.display = 'inline-block';
+                        userChatInput.style.display = 'flex'; // Admin also can send as user
+                        
+                        // Add admin keypress listener
+                        const adminInput = document.getElementById('adminChatInput');
+                        adminInput.addEventListener('keypress', handleAdminKeyPress);
+                    } else {
+                        adminChatControl.classList.remove('active');
+                        adminBadge.style.display = 'none';
+                    }
+                    
                     // Load all user data
                     loadUserData(user);
-                    loadTotalUsers(); // ✅ ပြန်ထည့်
-                    loadAllOrdersCount(); // ✅ ပြန်ထည့်
+                    loadTotalUsers();
+                    loadAllOrdersCount();
+                    
+                    // Load chat messages
+                    loadChatMessages();
+                    
+                    // Load draft message
+                    loadDraft();
+                    
+                    // Set up auto-save for draft
+                    chatInput.addEventListener('input', saveDraft);
+                    chatInput.addEventListener('keypress', handleChatKeyPress);
                     
                     showSuccess('Welcome to your dashboard!');
                     
                 }, 1000);
                 
             } else {
-                console.log('⚠️ No user, redirecting to index.html');
+                console.log('⚠️ No user, redirecting to login.html');
                 window.location.href = 'login.html';
             }
         }, function(error) {
@@ -778,8 +1119,8 @@
             }
         }
     }
-    
-    // ✅ ပြန်ထည့်: loadAllOrdersCount() function
+        
+    // Load all orders count
     async function loadAllOrdersCount() {
         try {
             console.log('📦 Loading ALL orders count...');
@@ -806,7 +1147,7 @@
         }
     }
     
-    // ✅ ပြန်ထည့်: Load total users count
+    // Load total users count
     async function loadTotalUsers() {
         try {
             const usersSnapshot = await db.collection('users').get();
@@ -820,7 +1161,7 @@
         }
     }
     
-    // Menu functions - ပြင်ဆင်ထားသော လင့်များ
+    // Menu functions
     function toggleMenu() {
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
@@ -828,27 +1169,24 @@
     function openPage(pageUrl) {
         console.log('🌐 Opening:', pageUrl);
         
+        // Save draft before leaving
+        saveDraft();
+        
         if (pageUrl === 'smmpanel.html') {
-            // Boost Service အတွက်
             window.location.href = 'smmpanel.html';
         } else if (pageUrl === 'service.html') {
-            // Other Service အတွက်
             window.location.href = 'service.html';
         } else if (pageUrl === 'coins.html') {
-            // Add Funds အတွက်
             window.location.href = 'coins.html';
         } else if (pageUrl === 'history.html') {
-            // Order History အတွက်
             window.location.href = 'history.html';
         } else if (pageUrl === 'panel.html') {
-            // Bot Panel အတွက်
             window.location.href = 'panel.html';
         } else {
             console.log('❌ Unknown page:', pageUrl);
             showError('Page not found: ' + pageUrl);
         }
         
-        // Menu ကို ပိတ်ပါ
         menu.style.display = 'none';
     }
     
@@ -865,16 +1203,22 @@
         try {
             console.log('👋 Logging out...');
             hideConfirmModal();
-            showSuccess('Logging out...');
             
+            // Save final draft before logout
+            saveDraft();
+            
+            // Clean up chat listener
+            if (chatListener) {
+                chatListener();
+                chatListener = null;
+            }
+            
+            showSuccess('Logging out...');
             await auth.signOut();
             console.log('✅ Logout successful');
             
-            // Clear all local storage data for this user
-            if (currentUser) {
-                localStorage.removeItem(`local_chat_messages_${currentUser.uid}`);
-                localStorage.removeItem(`chat_draft_${currentUser.uid}`);
-            }
+            // Don't clear messages - they will load when user logs in again
+            // This preserves chat history
             
             setTimeout(() => {
                 window.location.href = 'login.html';
@@ -904,9 +1248,9 @@
     });
     
     // System info
-    console.log('🚀 KnVeTo SHOP Dashboard v5.0 - Menu Links Fixed + Firebase Functions Restored');
+    console.log('🚀 SocialX MM Dashboard v7.0 - Enhanced Chat with Admin Reply & Auto Save');
     console.log('📱 User agent:', navigator.userAgent);
     console.log('⏰ Current time:', new Date().toLocaleString());
     </script>
 </body>
-</html> 
+</html>
