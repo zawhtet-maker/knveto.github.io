@@ -501,12 +501,12 @@
                     <select class="form-select" id="categorySelect" onchange="onCategoryChange()">
                         <option value="">Select a category</option>
                         <option value="tiktok">TikTok</option>
-                        <option value="youtube">YouTube</option>
                         <option value="facebook">Facebook</option>
                         <option value="telegram">Telegram</option>
                 <option value="instagram">Instagram</option>
                 <option value="twitter">Twitter</option>
-                        <option value="cheap">အတန်ဆုံး Service များ</option>
+                <option value="youtube">YouTube</option>
+                <option value="cheap">အတန်ဆုံး Service များ</option>
                 <option value="tgpremium">Telegram Premium/⭐Stars</option>
 
                     </select>
@@ -897,14 +897,25 @@ const servicesData = {
             icon: '👍'
         },
         { 
-            id: 'fb_reactions', 
-            name: 'Facebook Reactions', 
-            price: 0.01,
-            note: 'Like, Love, Haha, Wow, Sad, Angry reactions. Mix of different reaction types.',
+            id: 'fb_star', 
+            name: '⭐Facebook Star', 
+            price: 50,
+            note: 'Quantity နေရာတွင် 1,10,30,50,200,300 ကလွဲတခြား ပမာဏထည့်ရင် Cancel ပါ။ Link နေရာတွင် Star လက်ခံမည့်Profile Link ထည့်ပါ',
+            min:1 ,
+            max: 50000,
+            perUnit:1000,
+            averageTime: '48-49Hours',
+            icon: '😀'
+        },
+        { 
+            id: 'fb_Foll_Cheap', 
+            name: 'Facebook Follower [Cheap]', 
+            price: 0.7,
+            note: 'Cheap ရတုန်းလေးဂုန်းဆင်းထားကျ။Profile Page/Page နှစ်မျိူးလုံးရ။',
             min: 10,
             max: 50000,
-            perUnit: 1,
-            averageTime: '6-12 Hours',
+            perUnit: 1000,
+            averageTime: '3-6Hours',
             icon: '😀'
         },
     ]
@@ -1563,7 +1574,7 @@ servicesData.youtube = [
             id: 'tg_sub', 
             name: 'Telegram Subscriber {Life Time}', 
             price: 0.85,
-            note: 'Telegram Subscriber အမြန် Service လုံးဝပြန်မကျပါ Gp/Channel နှစ်ခုလုံးမှာတိုးလုိ့ရပါတယ်။',
+            note: 'Telegram Subscriber အမြန် Service လုံးဝ ပြန်မကျပါ။ Gp/Channel နှစ်ခုလုံးမှာတိုးလုိ့ရပါတယ်။',
             min: 1000,
             max: 100000,
             perUnit: 1000,
@@ -1572,7 +1583,7 @@ servicesData.youtube = [
         },
         { 
             id: 'tg_views', 
-            name: 'Telegram Views', 
+            name: 'Telegram Post Views', 
             price: 0.008,
             note: 'Telegram Post View ဖြစ်သည့်အတွက်တိုးမည် Post Link သာချပေးပါ။',
             min: 1000,
@@ -1601,6 +1612,39 @@ servicesData.youtube = [
             max: 100000,
             perUnit: 1000,
             averageTime: '1-3 Hours',
+            icon: '💬'
+        },
+        { 
+            id: 'tg_Bot',
+            name: 'Telegram Bot Members', 
+            price: 0.06,
+            note: 'Telegram Bot Members.Life Time Service',
+            min: 200,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: 'No Limited',
+            icon: '💬'
+        },
+        { 
+            id: 'tg_Pre_mb',
+            name:'🌟Telegram Premium Members [3 Days Premium]', 
+            price: 4.47,
+            note: 'Telegram Premium Members.Life Time Service.Channel or Group နှစ်မျိူးလုံးရ',
+            min: 50,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1hour - 2hour',
+            icon: '💬'
+        },
+        { 
+            id: 'tg_Pre_Bot',
+            name: '🌟Telegram Bot Start Premium Members [5 Days Premium] For Global Search', 
+            price: 7.5,
+            note: 'Telegram Bot Premium Members.Life Time Service.',
+            min: 50,
+            max: 100000,
+            perUnit: 1000,
+            averageTime: '1hour - 2hour',
             icon: '💬'
         }
     ];
